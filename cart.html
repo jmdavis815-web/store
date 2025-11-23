@@ -1,193 +1,350 @@
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="light">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="color-scheme" content="light dark">
-    <title>Your Cart</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Your Cart</title>
 
-    <link href="style.css" rel="stylesheet">
-    <!-- Bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+  <link href="style.css" rel="stylesheet">
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+        crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+          crossorigin="anonymous"></script>
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
 </head>
 <body>
-    <!-- NavBar -->
-    <nav class="navbar bg-body-tertiary sticky-top mb-5">
-        <div class="container-fluid">
-            <a href="cart.html" type="button">
-                <i class="cart bi bi-cart4 position-relative m-2"></i>
-                <span id="cartBadge" class="top-0 start-100 translate-middle badge rounded-pill bg-danger"></span>
-                <span id="priceTotal"></span>
-            </a>
-            <a class="navbar-brand" href="index.html">Offcanvas navbar</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
-                <div class="offcanvas-header">
-                    <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Offcanvas</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-                </div>
-                <div class="offcanvas-body">
-                    <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
-                        <li class="nav-item">
-                            <a class="nav-link" aria-current="page" href="index.html">Home</a>
-                        </li>
-                    </ul>
-                    <form class="d-flex mt-3" role="search">
-                        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"/>
-                        <button class="btn btn-outline-success" type="submit">Search</button>
-                    </form>
-                </div>
-            </div>
+  <!-- NavBar -->
+  <nav class="navbar bg-body-tertiary sticky-top mb-5">
+    <div class="container-fluid">
+      <a href="cart.html" type="button">
+        <i class="cart bi bi-cart4 position-relative m-2"></i>
+        <span id="cartBadge" class="top-0 start-100 translate-middle badge rounded-pill bg-danger"></span>
+        <span id="priceTotal"></span>
+      </a>
+      <a class="navbar-brand" href="index.html">Offcanvas navbar</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas"
+              data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar"
+           aria-labelledby="offcanvasNavbarLabel">
+        <div class="offcanvas-header">
+          <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Offcanvas</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
-    </nav>
-
-    <!-- Main Content -->
-    <div class="container mb-5">
-        <h2 class="mb-4">Your Cart</h2>
-
-        <!-- Empty message -->
-        <div id="emptyCartMsg" class="alert alert-info">
-            Your cart is empty. <a href="index.html" class="alert-link">Go back to the shop</a> to add some magic ✨
+        <div class="offcanvas-body">
+          <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+            <li class="nav-item">
+              <a class="nav-link" aria-current="page" href="index.html">Home</a>
+            </li>
+          </ul>
+          <form class="d-flex mt-3" role="search">
+            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"/>
+            <button class="btn btn-outline-success" type="submit">Search</button>
+          </form>
         </div>
+      </div>
+    </div>
+  </nav>
 
-        <!-- Cart table -->
-        <div id="cartContent" class="d-none">
-            <div class="table-responsive mb-4">
-                <table class="table align-middle">
-                    <thead>
-                        <tr>
-                            <th scope="col">Item</th>
-                            <th scope="col">Price</th>
-                            <th scope="col">Quantity</th>
-                            <th scope="col">Subtotal</th>
-                        </tr>
-                    </thead>
-                    <tbody id="cartTableBody">
-                        <!-- Rows will be injected by JS -->
-                    </tbody>
-                </table>
-            </div>
+  <!-- Main Content -->
+  <div class="container mb-5">
+    <h2 class="mb-4">Your Cart</h2>
 
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <button id="clearCartBtn" class="btn btn-outline-danger">
-                    <i class="bi bi-trash3"></i> Clear Cart
-                </button>
-
-                <div class="text-end">
-                    <h4 id="cartTotalDisplay">Total: $0.00</h4>
-                </div>
-            </div>
-
-            <div class="text-end">
-                <button class="btn btn-success">
-                    Proceed to Checkout
-                </button>
-            </div>
-        </div>
+    <!-- Empty message -->
+    <div id="emptyCartMsg" class="alert alert-info">
+      Your cart is empty. <a href="index.html" class="alert-link">Go back to the shop</a> to add some magic ✨
     </div>
 
-    <!-- Shared cart logic -->
-    <script src="app.js"></script>
+    <!-- Cart table -->
+    <div id="cartContent" class="d-none">
+      <div class="table-responsive mb-4">
+        <table class="table align-middle">
+          <thead>
+            <tr>
+              <th scope="col">Item</th>
+              <th scope="col">Price</th>
+              <th scope="col">Quantity</th>
+              <th scope="col">Subtotal</th>
+              <th scope="col">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="cartTableBody">
+            <!-- Rows will be injected by JS -->
+          </tbody>
+        </table>
+      </div>
 
-    <script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const cartTableBody    = document.getElementById("cartTableBody");
-    const emptyCartMsg     = document.getElementById("emptyCartMsg");
-    const cartContent      = document.getElementById("cartContent");
-    const cartTotalDisplay = document.getElementById("cartTotalDisplay");
-    const clearCartBtn     = document.getElementById("clearCartBtn");
+      <div class="row mb-4">
+        <!-- Discount code -->
+        <div class="col-md-6 mb-3">
+          <label for="discountCode" class="form-label">Discount Code</label>
+          <div class="input-group">
+            <input type="text" id="discountCode" class="form-control"
+                   placeholder="Enter code (try MAGIC10)">
+            <button id="applyDiscountBtn" class="btn btn-outline-primary">Apply</button>
+          </div>
+          <small id="discountHelp" class="text-muted">
+            No discount code applied yet. Try <strong>MAGIC10</strong> for 10% off subtotal.
+          </small>
+        </div>
 
-    // cart, saveCart, updateCartUI all come from app.js (global)
+        <!-- Order summary -->
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Order Summary</h5>
 
-    function renderCartTable() {
-      const entries = Object.entries(cart || {}); // [id, {name, price, qty}]
-      cartTableBody.innerHTML = "";
+              <div class="d-flex justify-content-between">
+                <span>Subtotal</span>
+                <span id="summarySubtotal">$0.00</span>
+              </div>
+              <div class="d-flex justify-content-between">
+                <span>Tax</span>
+                <span id="summaryTax">$0.00</span>
+              </div>
+              <div class="d-flex justify-content-between">
+                <span>Shipping</span>
+                <span id="summaryShipping">$0.00</span>
+              </div>
+              <div class="d-flex justify-content-between">
+                <span>Discount</span>
+                <span id="summaryDiscount">-$0.00</span>
+              </div>
 
-      if (!entries.length) {
-        emptyCartMsg.classList.remove("d-none");
-        cartContent.classList.add("d-none");
-        cartTotalDisplay.textContent = "Total: $0.00";
+              <hr>
+
+              <div class="d-flex justify-content-between fw-bold">
+                <span>Grand Total</span>
+                <span id="summaryGrandTotal">$0.00</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <button id="clearCartBtn" class="btn btn-outline-danger">
+          <i class="bi bi-trash3"></i> Clear Cart
+        </button>
+
+        <a href="index.html" class="btn btn-outline-secondary">
+          Continue Shopping
+        </a>
+
+        <button class="btn btn-success">
+          Proceed to Checkout
+        </button>
+      </div>
+
+      <!-- For backwards compatibility -->
+      <h4 id="cartTotalDisplay" class="d-none">Total: $0.00</h4>
+    </div>
+  </div>
+
+  <!-- Shared cart logic -->
+  <script src="app.js"></script>
+
+  <!-- Page-specific cart rendering -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const cartTableBody     = document.getElementById("cartTableBody");
+      const emptyCartMsg      = document.getElementById("emptyCartMsg");
+      const cartContent       = document.getElementById("cartContent");
+      const cartTotalDisplay  = document.getElementById("cartTotalDisplay");
+
+      const clearCartBtn      = document.getElementById("clearCartBtn");
+      const subtotalEl        = document.getElementById("summarySubtotal");
+      const taxEl             = document.getElementById("summaryTax");
+      const shippingEl        = document.getElementById("summaryShipping");
+      const discountEl        = document.getElementById("summaryDiscount");
+      const grandTotalEl      = document.getElementById("summaryGrandTotal");
+
+      const discountInput     = document.getElementById("discountCode");
+      const applyDiscountBtn  = document.getElementById("applyDiscountBtn");
+      const discountHelp      = document.getElementById("discountHelp");
+
+      const TAX_RATE      = 0.08; // 8%
+      const SHIPPING_FLAT = 5.0;  // flat $5
+      let discountRate    = 0;    // 0.10 = 10%
+
+      function renderCartTable() {
+        const cartObj = loadCart();
+        const entries = Object.entries(cartObj || {});
+        cartTableBody.innerHTML = "";
+
+        if (!entries.length) {
+          emptyCartMsg.classList.remove("d-none");
+          cartContent.classList.add("d-none");
+          subtotalEl.textContent      = "$0.00";
+          taxEl.textContent           = "$0.00";
+          shippingEl.textContent      = "$0.00";
+          discountEl.textContent      = "-$0.00";
+          grandTotalEl.textContent    = "$0.00";
+          cartTotalDisplay.textContent = "Total: $0.00";
+          updateCartUI();
+          return;
+        }
+
+        emptyCartMsg.classList.add("d-none");
+        cartContent.classList.remove("d-none");
+
+        let subtotal = 0;
+
+        entries.forEach(([id, item]) => {
+          const lineSubtotal = item.qty * item.price;
+          subtotal += lineSubtotal;
+
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${item.name}</td>
+            <td>$${item.price.toFixed(2)}</td>
+            <td>
+              <div class="btn-group btn-group-sm" role="group" aria-label="Quantity controls"
+                   data-product-id="${id}"
+                   data-product-name="${item.name}"
+                   data-product-price="${item.price}">
+                <button type="button" class="btn btn-outline-danger btn-cart-minus">
+                  <i class="bi bi-dash"></i>
+                </button>
+                <button id="qty-${id}" type="button" class="btn btn-outline-secondary" disabled>
+                  ${item.qty}
+                </button>
+                <button type="button" class="btn btn-outline-success btn-cart-plus">
+                  <i class="bi bi-plus"></i>
+                </button>
+              </div>
+            </td>
+            <td>$${lineSubtotal.toFixed(2)}</td>
+            <td>
+              <button type="button" class="btn btn-outline-secondary btn-remove-item">
+                <i class="bi bi-trash3"></i>
+              </button>
+            </td>
+          `;
+          cartTableBody.appendChild(tr);
+        });
+
+        // Summary
+        const tax         = subtotal * TAX_RATE;
+        const shipping    = subtotal > 0 ? SHIPPING_FLAT : 0;
+        const discountAmt = subtotal * discountRate;
+        const grandTotal  = subtotal + tax + shipping - discountAmt;
+
+        subtotalEl.textContent      = `$${subtotal.toFixed(2)}`;
+        taxEl.textContent           = `$${tax.toFixed(2)}`;
+        shippingEl.textContent      = `$${shipping.toFixed(2)}`;
+        discountEl.textContent      = `-$${discountAmt.toFixed(2)}`;
+        grandTotalEl.textContent    = `$${grandTotal.toFixed(2)}`;
+        cartTotalDisplay.textContent = `Total: $${grandTotal.toFixed(2)}`;
+
         updateCartUI();
-        return;
       }
 
-      emptyCartMsg.classList.add("d-none");
-      cartContent.classList.remove("d-none");
+      // Plus / minus / remove actions
+      cartTableBody.addEventListener("click", (e) => {
+        const plusBtn   = e.target.closest(".btn-cart-plus");
+        const minusBtn  = e.target.closest(".btn-cart-minus");
+        const removeBtn = e.target.closest(".btn-remove-item");
 
-      let totalPrice = 0;
+        if (!plusBtn && !minusBtn && !removeBtn) return;
 
-      entries.forEach(([id, item]) => {
-        const subtotal = item.qty * item.price;
-        totalPrice += subtotal;
+        let group = null;
+        if (plusBtn || minusBtn) {
+          group = (plusBtn || minusBtn).closest(".btn-group[data-product-id]");
+        } else if (removeBtn) {
+          group = removeBtn.closest("tr").querySelector(".btn-group[data-product-id]");
+        }
 
-        const tr = document.createElement("tr");
+        if (!group) return;
 
-        tr.innerHTML = `
-          <td>${item.name}</td>
-          <td>$${item.price.toFixed(2)}</td>
-          <td>
-            <div class="btn-group btn-group-sm" role="group" aria-label="Quantity controls"
-                 data-product-id="${id}"
-                 data-product-name="${item.name}"
-                 data-product-price="${item.price}">
-              <button type="button" class="btn btn-outline-danger btn-cart-minus">
-                <i class="bi bi-dash"></i>
-              </button>
-              <button id="qty-${id}" type="button" class="btn btn-outline-secondary" disabled>
-                ${item.qty}
-              </button>
-              <button type="button" class="btn btn-outline-success btn-cart-plus">
-                <i class="bi bi-plus"></i>
-              </button>
-            </div>
-          </td>
-          <td>$${subtotal.toFixed(2)}</td>
-        `;
+        const id    = group.dataset.productId;
+        const name  = group.dataset.productName;
+        const price = parseFloat(group.dataset.productPrice) || 0;
 
-        cartTableBody.appendChild(tr);
+        if (plusBtn) {
+          adjustCart(id, +1, name, price);
+          const c = loadCart();
+          showCartToast(`Added another ${c[id].name}.`);
+          renderCartTable();
+        } else if (minusBtn) {
+          adjustCart(id, -1);
+          renderCartTable();
+        } else if (removeBtn) {
+          const c = loadCart();
+          delete c[id];
+          saveCart();
+          updateCartUI();
+          renderCartTable();
+        }
       });
 
-      cartTotalDisplay.textContent = "Total: $" + totalPrice.toFixed(2);
+      // Clear entire cart
+      clearCartBtn.addEventListener("click", () => {
+        cart = {};
+        saveCart();
+        updateCartUI();
+        renderCartTable();
+      });
 
-      // Sync navbar badge / top total
-      updateCartUI();
-    }
+      // Discount code logic
+      applyDiscountBtn.addEventListener("click", () => {
+        const code = (discountInput.value || "").trim().toUpperCase();
 
-    // Clear cart using same storage as app.js
-    clearCartBtn.addEventListener("click", () => {
-      cart = {};        // reset the global cart object
-      saveCart();       // from app.js
-      updateCartUI();   // reset badge/total
+        if (!code) {
+          discountRate = 0;
+          discountHelp.textContent =
+            "No discount code applied. Try MAGIC10 for 10% off subtotal.";
+          discountHelp.classList.remove("text-danger", "text-success");
+        } else if (code === "MAGIC10") {
+          discountRate = 0.10;
+          discountHelp.textContent =
+            "MAGIC10 applied: 10% off subtotal.";
+          discountHelp.classList.remove("text-danger");
+          discountHelp.classList.add("text-success");
+        } else {
+          discountRate = 0;
+          discountHelp.textContent =
+            "Invalid code. Try MAGIC10 for 10% off subtotal.";
+          discountHelp.classList.remove("text-success");
+          discountHelp.classList.add("text-danger");
+        }
+
+        renderCartTable();
+      });
+
+      // Initial render
       renderCartTable();
     });
 
-    // Initial render
-    renderCartTable();
+    // Dark mode support
+    (function () {
+      const prefersDark = window.matchMedia &&
+        window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.setAttribute(
+        'data-bs-theme',
+        prefersDark ? 'dark' : 'light'
+      );
+    })();
+  </script>
 
-    // When plus/minus is clicked, app.js updates the cart.
-    // We then re-render the table so quantities & subtotals update.
-    document.addEventListener("click", (e) => {
-      const plusBtn  = e.target.closest(".btn-cart-plus");
-      const minusBtn = e.target.closest(".btn-cart-minus");
-
-      if (plusBtn || minusBtn) {
-        setTimeout(renderCartTable, 50);
-      }
-    });
-  });
-
-  // Dark mode support (same as other pages)
-  (function () {
-    const prefersDark = window.matchMedia &&
-      window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-    document.documentElement.setAttribute('data-bs-theme', prefersDark ? 'dark' : 'light');
-  })();
-</script>
-
+  <!-- Cart Toast -->
+  <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1080;">
+    <div id="cartToast" class="toast align-items-center text-bg-success border-0"
+         role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body">
+          Item added to cart.
+        </div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>

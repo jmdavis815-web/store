@@ -1,7 +1,7 @@
-// ===== Simple Cart Logic =====
+// ===== CART CORE =====
 const STORAGE_KEY = "storeCart";
 
-// Load cart from localStorage or start fresh
+// Global cart object
 let cart = {};
 try {
   cart = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
@@ -9,12 +9,36 @@ try {
   cart = {};
 }
 
-// Save cart
+// Optional inventory limits (per product ID)
+const INVENTORY = {
+  chakraWater: 5,
+  protectionCandle: 10, // example for another product
+  // add more: productId: maxQty
+};
+
+// Save cart to localStorage
 function saveCart() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
 }
 
-// Update navbar badge + price total + per-product qty
+// Convenience getter
+function loadCart() {
+  return cart;
+}
+
+// Toast popup for add-to-cart etc.
+function showCartToast(message) {
+  const toastEl = document.getElementById("cartToast");
+  if (!toastEl || typeof bootstrap === "undefined") return;
+
+  const bodyEl = toastEl.querySelector(".toast-body");
+  if (bodyEl) bodyEl.textContent = message;
+
+  const toast = bootstrap.Toast.getOrCreateInstance(toastEl);
+  toast.show();
+}
+
+// Update navbar badge + top total + per-product quantities
 function updateCartUI() {
   const cartBadge = document.getElementById("cartBadge");
   const priceTotal = document.getElementById("priceTotal");
@@ -22,9 +46,15 @@ function updateCartUI() {
   let totalQty = 0;
   let totalPrice = 0;
 
-  Object.values(cart).forEach(item => {
+  Object.entries(cart).forEach(([id, item]) => {
     totalQty += item.qty;
     totalPrice += item.qty * item.price;
+
+    // Update any quantity buttons on the page
+    const qtyEl = document.getElementById(`qty-${id}`);
+    if (qtyEl) {
+      qtyEl.textContent = item.qty;
+    }
   });
 
   // Badge
@@ -36,59 +66,77 @@ function updateCartUI() {
   if (priceTotal) {
     priceTotal.textContent = totalPrice > 0 ? `$${totalPrice.toFixed(2)}` : "";
   }
-
-  // Per-product quantity buttons
-  Object.keys(cart).forEach(productId => {
-    const qtyBtn = document.getElementById(`qty-${productId}`);
-    if (qtyBtn) {
-      qtyBtn.textContent = cart[productId].qty;
-    }
-  });
 }
 
-// Initialize once DOM is ready
+// Adjust cart by delta (±1, etc.)
+function adjustCart(productId, delta, name, price) {
+  if (!cart[productId]) {
+    cart[productId] = {
+      name: name || "Item",
+      price: parseFloat(price) || 0,
+      qty: 0
+    };
+  }
+
+  const limit = INVENTORY[productId];
+
+  // Enforce inventory
+  if (delta > 0 && limit !== undefined && cart[productId].qty >= limit) {
+    showCartToast(`Only ${limit} of ${cart[productId].name} in stock.`);
+    return;
+  }
+
+  cart[productId].qty += delta;
+
+  if (cart[productId].qty < 0) {
+    cart[productId].qty = 0;
+  }
+
+  saveCart();
+  updateCartUI();
+}
+
+// ===== PAGE INITIALIZATION (product pages, index.html, etc.) =====
 document.addEventListener("DOMContentLoaded", () => {
-  const productGroups = document.querySelectorAll(
-    ".btn-group[data-product-id]"
-  );
+  // Fade-in effect
+  document.body.classList.add("page-loaded");
+
+  // Wire up all product controls on this page
+  const productGroups = document.querySelectorAll(".btn-group[data-product-id]");
 
   productGroups.forEach(group => {
-    const productId = group.dataset.productId;
+    const id = group.dataset.productId;
     const name = group.dataset.productName || "Item";
     const price = parseFloat(group.dataset.productPrice) || 0;
 
-    // Ensure cart entry exists
-    if (!cart[productId]) {
-      cart[productId] = { name, price, qty: 0 };
+    // Ensure entry exists
+    if (!cart[id]) {
+      cart[id] = { name, price, qty: 0 };
     }
 
     const plusBtn = group.querySelector(".btn-cart-plus");
     const minusBtn = group.querySelector(".btn-cart-minus");
-    const qtyBtn = document.getElementById(`qty-${productId}`);
+    const qtyBtn = document.getElementById(`qty-${id}`);
 
-    // Safety check
-    if (!plusBtn || !minusBtn || !qtyBtn) return;
+    if (qtyBtn) {
+      qtyBtn.textContent = cart[id].qty;
+    }
 
-    // Set initial qty text
-    qtyBtn.textContent = cart[productId].qty;
+    if (plusBtn) {
+      plusBtn.addEventListener("click", () => {
+        adjustCart(id, +1, name, price);
+        const item = cart[id];
+        showCartToast(`${item.name} added to cart.`);
+      });
+    }
 
-    plusBtn.addEventListener("click", () => {
-      cart[productId].qty += 1;
-      qtyBtn.textContent = cart[productId].qty;
-      saveCart();
-      updateCartUI();
-    });
-
-    minusBtn.addEventListener("click", () => {
-      if (cart[productId].qty > 0) {
-        cart[productId].qty -= 1;
-        qtyBtn.textContent = cart[productId].qty;
-        saveCart();
-        updateCartUI();
-      }
-    });
+    if (minusBtn) {
+      minusBtn.addEventListener("click", () => {
+        adjustCart(id, -1);
+      });
+    }
   });
 
-  // Initial paint
+  // Initial UI sync
   updateCartUI();
 });
