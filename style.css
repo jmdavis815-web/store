@@ -23,5 +23,6 @@ body a {
 
 .carousel-index img {
   size: cover;
+  position: center;
 }
 
