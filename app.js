@@ -5,7 +5,7 @@ const PRODUCT_DATA = {
     name: "Chakra Water",
     price: 24.99,
     description: "Reiki infused water",
-    image: "bottle-3.jpg",
+    image: "chakra-water.png",
     url: "chakra-water.html",
     stock: 5
   },
@@ -14,7 +14,7 @@ const PRODUCT_DATA = {
     name: "Protection Candle",
     price: 14.99,
     description: "Hand-poured protection spell candle",
-    image: "candle.jpg",
+    image: "protection-candle-img.png",
     url: "#",
     stock: 10
   }
