@@ -1,65 +1,59 @@
-let price = 25.99;
-let cart = 0;
-let cartTotal = 0;
+// ===== Cart Setup =====
+const PRICE_PER_ITEM = 25.99;
 
-// Load saved info
-if (localStorage.getItem("cart")) {
-    cart = parseInt(localStorage.getItem("cart"));
-}
-if (localStorage.getItem("cartTotal")) {
-    cartTotal = parseInt(localStorage.getItem("cartTotal"));
-}
+// Load saved cart value or default to 0
+let cart = parseInt(localStorage.getItem("cart") || "0", 10);
 
-const cartItem = document.getElementById("cartItem");
-const priceTotal = document.getElementById("priceTotal");
-const cartBadge = document.getElementById("cartBadge");
+// These will be set after the DOM is ready
+let cartBadge;
+let cartItem;
+let priceTotal;
 
-// Update UI when page loads
-function updateUI() {
-    cartItem.textContent = `${cart}`;
-    cartBadge.textContent = `${cartTotal}`;
+// Grab elements once the page is loaded, then sync UI
+document.addEventListener("DOMContentLoaded", () => {
+    cartBadge  = document.getElementById("cartBadge"); // navbar badge
+    cartItem   = document.getElementById("cartItem");  // middle button on product
+    priceTotal = document.getElementById("priceTotal"); // total in navbar (or cart page)
 
-    let total = price * cart;
-    priceTotal.textContent = `Total: $${total.toFixed(2)}`;
-}
-updateUI();
+    updateUI();
+});
 
+// Save to localStorage so all pages can read it
 function saveCart() {
-    localStorage.setItem("cart", cart);
-    localStorage.setItem("cartTotal", cartTotal);
+    localStorage.setItem("cart", cart.toString());
 }
 
-function removeCartTest() {
-    if (cart <= 0) {
-        cart = 0;
-        cartTotal = 0;
-    } else {
-        cart = cart - 1;
-        cartTotal = cartTotal - 1;
+// Update all visible elements that exist on this page
+function updateUI() {
+    const total = cart * PRICE_PER_ITEM;
+
+    if (cartBadge) {
+        cartBadge.textContent = cart;
     }
 
-    updateUI();
-    saveCart();
+    if (cartItem) {
+        cartItem.textContent = cart;
+    }
+
+    if (priceTotal) {
+        priceTotal.textContent = `Total: $${total.toFixed(2)}`;
+    }
 }
 
+// Called by: onclick="addCartTest()"
 function addCartTest() {
-    if (cart >= 99) {
-        cart = 99;
-    } else {
-        cart = cart + 1;
-        cartTotal = cartTotal + 1;
-    }
-
-    updateUI();
-    saveCart();
-}
-
-function loadCartOnPage() {
-    let savedCartTotal = localStorage.getItem("cartTotal");
-
-    if (cartBadge && savedCartTotal !== null) {
-        cartBadge.textContent = savedCartTotal;
+    if (cart < 99) {
+        cart++;
+        saveCart();
+        updateUI();
     }
 }
 
-loadCartOnPage();
+// Called by: onclick="removeCartTest()"
+function removeCartTest() {
+    if (cart > 0) {
+        cart--;
+        saveCart();
+        updateUI();
+    }
+}
