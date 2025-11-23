@@ -15,7 +15,7 @@ const PRODUCT_DATA = {
     price: 14.99,
     description: "Hand-poured protection spell candle",
     image: "protection-candle-img.png",
-    url: "#",
+    url: "protectin-candle.html",
     stock: 10
   }
   // Add more products here as you build your store...
