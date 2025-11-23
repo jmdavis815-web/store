@@ -15,10 +15,10 @@
     <!-- NavBar -->
     <nav class="navbar bg-body-tertiary sticky-top mb-5">
   <div class="container-fluid">
-    <a href="#" type="button"><i class="cart bi bi-cart4 position-relative m-2"></i><span class="top-0 start-100 translate-middle badge rounded-pill bg-danger">0
+    <a href="cart.html" type="button"><i class="cart bi bi-cart4 position-relative m-2"></i><span id="cartBadge" class="top-0 start-100 translate-middle badge rounded-pill bg-danger">0
     <span class="visually-hidden">unread messages</span>
   </span></a>
-    <a class="navbar-brand" href="#">Offcanvas navbar</a>
+    <a class="navbar-brand" href="index.html">Offcanvas navbar</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -63,102 +63,36 @@
         <div class="row">
             
             <!-- Carousel -->
-            <div id="carouselExampleSlidesOnly" class="carousel slide col-12 mb-3" data-bs-ride="carousel">
+            <div id="carouselExampleSlidesOnly" class="carousel-index slide col-12 col-md-6 mb-3" data-bs-ride="carousel">
                 <div class="carousel-inner">
                     <!-- Item -->
                     <div class="carousel-item active">
                         <div class="card">
-                    <div class="row g-0">
-                        <div class="col-md-4">
-                            <img src="bottle.jpg" class="img-fluid rounded-start" alt="Item Image">
-                        </div>
-                        <div class="col-md-8">
-                            <div class="card-body">
-                                <h5 class="card-title">Item Name</h5>
-                                    <p class="card-text">Brief Description</p>
-                            <!-- Quantity Selector -->
-                            <div class="d-flex align-items-center mb-3">
-                                <button class="btn btn-outline-secondary btn-sm" onclick="decreaseQuantity(this)">−</button>
-                                <input title="amount" type="text" class="form-control text-center mx-2 w-25" value="1" readonly>
-                                <button class="btn btn-outline-secondary btn-sm" onclick="increaseQuantity(this)">+</button>
-                                <!-- Add to Cart -->
-                                <button class="btn btn-success btn-sm w-40 m-2"><i class="bi bi-cart-plus-fill"> Add</i></button>
+                            <div class="row g-0">
+                                <div class="col-12">
+                                    <img src="bottle.jpg" class="img-fluid rounded-start" alt="Item Image">
+                                </div>
                             </div>
-                            </div>
-                        </div>
-                    </div>
                         </div>
                     </div>
 
                     <div class="carousel-item">
                         <div class="card">
-                    <div class="row g-0">
-                        <div class="col-md-4">
-                            <img src="bottle-3.jpg" class="img-fluid rounded-start" alt="Item Image">
-                        </div>
-                        <div class="col-md-8">
-                            <div class="card-body">
-                                <h5 class="card-title">Item Name</h5>
-                                    <p class="card-text">Brief Description</p>
-                            <!-- Quantity Selector -->
-                            <div class="d-flex align-items-center mb-3">
-                                <button class="btn btn-outline-secondary btn-sm" onclick="decreaseQuantity(this)">−</button>
-                                <input title="amount" type="text" class="form-control text-center mx-2 w-25" value="1" readonly>
-                                <button class="btn btn-outline-secondary btn-sm" onclick="increaseQuantity(this)">+</button>
-                                <!-- Add to Cart -->
-                                <button class="btn btn-success btn-sm w-40 m-2"><i class="bi bi-cart-plus-fill"> Add</i></button>
+                            <div class="row g-0">
+                                <div class="col-12">
+                                    <img src="bottle-3.jpg" class="img-fluid rounded-start" alt="Item Image">
+                                </div>
                             </div>
-                            </div>
-                        </div>
-                    </div>
                         </div>
                     </div>
 
                     <div class="carousel-item">
                         <div class="card">
-                    <div class="row g-0">
-                        <div class="col-md-4">
-                            <img src="bottle-3.jpg" class="img-fluid rounded-start" alt="Item Image">
-                        </div>
-                        <div class="col-md-8">
-                            <div class="card-body">
-                                <h5 class="card-title">Item Name</h5>
-                                    <p class="card-text">Brief Description</p>
-                            <!-- Quantity Selector -->
-                            <div class="d-flex align-items-center mb-3">
-                                <button class="btn btn-outline-secondary btn-sm" onclick="decreaseQuantity(this)">−</button>
-                                <input title="amount" type="text" class="form-control text-center mx-2 w-25" value="1" readonly>
-                                <button class="btn btn-outline-secondary btn-sm" onclick="increaseQuantity(this)">+</button>
-                                <!-- Add to Cart -->
-                                <button class="btn btn-success btn-sm w-40 m-2"><i class="bi bi-cart-plus-fill"> Add</i></button>
+                            <div class="row g-0">
+                                <div class="col-12">
+                                    <img src="bottle-4.jpg" class="img-fluid rounded-start" alt="Item Image">
+                                </div>
                             </div>
-                            </div>
-                        </div>
-                    </div>
-                        </div>
-                    </div>
-
-                    <div class="carousel-item">
-                        <div class="card">
-                    <div class="row g-0">
-                        <div class="col-md-4">
-                            <img src="bottle-4.jpg" class="img-fluid rounded-start" alt="Item Image">
-                        </div>
-                        <div class="col-md-8">
-                            <div class="card-body">
-                                <h5 class="card-title">Item Name</h5>
-                                    <p class="card-text">Brief Description</p>
-                            <!-- Quantity Selector -->
-                            <div class="d-flex align-items-center mb-3">
-                                <button class="btn btn-outline-secondary btn-sm" onclick="decreaseQuantity(this)">−</button>
-                                <input title="amount" type="text" class="form-control text-center mx-2 w-25" value="1" readonly>
-                                <button class="btn btn-outline-secondary btn-sm" onclick="increaseQuantity(this)">+</button>
-                                <!-- Add to Cart -->
-                                <button class="btn btn-success btn-sm w-40 m-2"><i class="bi bi-cart-plus-fill"> Add</i></button>
-                            </div>
-                            </div>
-                        </div>
-                    </div>
                         </div>
                     </div>
 
@@ -166,26 +100,12 @@
             </div>
 
             <!-- New -->
-            <div class="col-lg-6 col-12">
+            <div class="col-md-6 col-12">
                 <div class="card mb-3" max-width="540px">
                     <div class="row g-0">
-                        <div class="col-6">
+                        <div class="col-12">
                             <img src="bottle.jpg" class="img-fluid rounded-start" alt="Item Image">
                         </div>
-                        <div class="col-6">
-                            <div class="card-body">
-                                <h5 class="card-title">Item Name</h5>
-                                    <p class="card-text">Brief Description</p>
-                            <!-- Quantity Selector -->
-                            <div class="d-flex align-items-center mb-3">
-                                <button class="btn btn-outline-secondary btn-sm" onclick="decreaseQuantity(this)">−</button>
-                                <input title="amount" type="text" class="form-control text-center mx-2 w-25" value="1" readonly>
-                                <button class="btn btn-outline-secondary btn-sm" onclick="increaseQuantity(this)">+</button>
-                                <!-- Add to Cart -->
-                                <button class="btn btn-success btn-sm w-40 m-2"><i class="bi bi-cart-plus-fill"> Add</i></button>
-                            </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -194,44 +114,19 @@
                 <div class="card mb-3" max-width="540px">
                     <div class="row g-0">
                         <div class="col-6">
-                            <img src="bottle-2.jpg" class="img-fluid rounded-start" alt="Item Image">
+                            <a href="chakra-water.html"><img src="bottle-3.jpg" class="img-fluid rounded-start" alt="Item Image"></a>
                         </div>
                         <div class="col-6">
                             <div class="card-body">
-                                <h5 class="card-title">Item Name</h5>
-                                    <p class="card-text">Brief Description</p>
-                            <!-- Quantity Selector -->
-                            <div class="d-flex align-items-center mb-3">
-                                <button class="btn btn-outline-secondary btn-sm" onclick="decreaseQuantity(this)">−</button>
-                                <input title="amount" type="text" class="form-control text-center mx-2 w-25" value="1" readonly>
-                                <button class="btn btn-outline-secondary btn-sm" onclick="increaseQuantity(this)">+</button>
-                                <!-- Add to Cart -->
-                                <button class="btn btn-success btn-sm w-40 m-2"><i class="bi bi-cart-plus-fill"> Add</i></button>
-                            </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-lg-6 col-12">
-                <div class="card mb-3" max-width="540px">
-                    <div class="row g-0">
-                        <div class="col-6">
-                            <img src="bottle-3.jpg" class="img-fluid rounded-start" alt="Item Image">
-                        </div>
-                        <div class="col-6">
-                            <div class="card-body">
-                                <h5 class="card-title">Item Name</h5>
-                                    <p class="card-text">Brief Description</p>
-                            <!-- Quantity Selector -->
-                            <div class="d-flex align-items-center mb-3">
-                                <button class="btn btn-outline-secondary btn-sm" onclick="decreaseQuantity(this)">−</button>
-                                <input title="amount" type="text" class="form-control text-center mx-2 w-25" value="1" readonly>
-                                <button class="btn btn-outline-secondary btn-sm" onclick="increaseQuantity(this)">+</button>
-                                <!-- Add to Cart -->
-                                <button class="btn btn-success btn-sm w-40 m-2"><i class="bi bi-cart-plus-fill"> Add</i></button>
-                            </div>
+                                <a href="chakra-water.html"><h5 class="card-title">$24.99</h5></a>
+                                <p class="card-text">
+                                    Rake infused water
+                                </p>
+                                <div class="btn-group" role="group" aria-label="Basic outlined example">
+                                    <button type="button" class="btn btn-danger"><i class="bi bi-cart-dash"></i></button>
+                                    <button id="chakraWaterCart" type="button" class="btn btn-outline-success">0</button>
+                                    <button type="button" class="btn btn-success"><i class="bi bi-cart-plus"></i></button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -249,12 +144,10 @@
                                 <h5 class="card-title">Item Name</h5>
                                     <p class="card-text">Brief Description</p>
                             <!-- Quantity Selector -->
-                            <div class="d-flex align-items-center mb-3">
-                                <button class="btn btn-outline-secondary btn-sm" onclick="decreaseQuantity(this)">−</button>
-                                <input title="amount" type="text" class="form-control text-center mx-2 w-25" value="1" readonly>
-                                <button class="btn btn-outline-secondary btn-sm" onclick="increaseQuantity(this)">+</button>
-                                <!-- Add to Cart -->
-                                <button class="btn btn-success btn-sm w-40 m-2"><i class="bi bi-cart-plus-fill"> Add</i></button>
+                            <div class="btn-group" role="group" aria-label="Basic outlined example">
+                                <button type="button" class="btn btn-danger"><i class="bi bi-cart-dash"></i></button>
+                                <button type="button" class="btn btn-outline-success">0</button>
+                                <button type="button" class="btn btn-success"><i class="bi bi-cart-plus"></i></button>
                             </div>
                             </div>
                         </div>

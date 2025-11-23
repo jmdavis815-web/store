@@ -16,6 +16,8 @@ i {
   font-size: 16px;
 }
 
-.carousel img {
-  size: cover;
+body a {
+  text-decoration: none;
+  color: black;
 }
+
