@@ -1,3 +1,26 @@
+// ===== PRODUCT CATALOG (single source of truth) =====
+const PRODUCT_DATA = {
+  chakraWater: {
+    id: "chakraWater",
+    name: "Chakra Water",
+    price: 24.99,
+    description: "Reiki infused water",
+    image: "bottle-3.jpg",
+    url: "chakra-water.html",
+    stock: 5
+  },
+  protectionCandle: {
+    id: "protectionCandle",
+    name: "Protection Candle",
+    price: 14.99,
+    description: "Hand-poured protection spell candle",
+    image: "candle.jpg",
+    url: "#",
+    stock: 10
+  }
+  // Add more products here as you build your store...
+};
+
 // ===== CART CORE =====
 const STORAGE_KEY = "storeCart";
 
@@ -9,12 +32,13 @@ try {
   cart = {};
 }
 
-// Optional inventory limits (per product ID)
-const INVENTORY = {
-  chakraWater: 5,
-  protectionCandle: 10, // example for another product
-  // add more: productId: maxQty
-};
+// Optional inventory limits (per product ID) derived from PRODUCT_DATA
+const INVENTORY = {};
+for (const [id, product] of Object.entries(PRODUCT_DATA)) {
+  if (product.stock !== undefined) {
+    INVENTORY[id] = product.stock;
+  }
+}
 
 // Save cart to localStorage
 function saveCart() {
@@ -43,6 +67,10 @@ function updateCartUI() {
   const cartBadge = document.getElementById("cartBadge");
   const priceTotal = document.getElementById("priceTotal");
 
+  if (priceTotal) {
+    priceTotal.style.color = "green";
+  }
+
   let totalQty = 0;
   let totalPrice = 0;
 
@@ -50,23 +78,21 @@ function updateCartUI() {
     totalQty += item.qty;
     totalPrice += item.qty * item.price;
 
-    // Update any quantity buttons on the page
     const qtyEl = document.getElementById(`qty-${id}`);
     if (qtyEl) {
       qtyEl.textContent = item.qty;
     }
   });
 
-  // Badge
   if (cartBadge) {
     cartBadge.textContent = totalQty > 0 ? totalQty : "";
   }
 
-  // Price in navbar
   if (priceTotal) {
     priceTotal.textContent = totalPrice > 0 ? `$${totalPrice.toFixed(2)}` : "";
   }
 }
+
 
 // Adjust cart by delta (±1, etc.)
 function adjustCart(productId, delta, name, price) {
@@ -104,38 +130,49 @@ document.addEventListener("DOMContentLoaded", () => {
   // Wire up all product controls on this page
   const productGroups = document.querySelectorAll(".btn-group[data-product-id]");
 
-  productGroups.forEach(group => {
-    const id = group.dataset.productId;
-    const name = group.dataset.productName || "Item";
-    const price = parseFloat(group.dataset.productPrice) || 0;
+productGroups.forEach(group => {
+  const id = group.dataset.productId;
+  const product = PRODUCT_DATA[id] || {};
 
-    // Ensure entry exists
-    if (!cart[id]) {
-      cart[id] = { name, price, qty: 0 };
-    }
+  const name =
+    group.dataset.productName ||
+    product.name ||
+    "Item";
 
-    const plusBtn = group.querySelector(".btn-cart-plus");
-    const minusBtn = group.querySelector(".btn-cart-minus");
-    const qtyBtn = document.getElementById(`qty-${id}`);
+  const price = parseFloat(
+    group.dataset.productPrice ||
+    product.price ||
+    0
+  );
 
-    if (qtyBtn) {
-      qtyBtn.textContent = cart[id].qty;
-    }
+  // Ensure entry exists
+  if (!cart[id]) {
+    cart[id] = { name, price, qty: 0 };
+  }
 
-    if (plusBtn) {
-      plusBtn.addEventListener("click", () => {
-        adjustCart(id, +1, name, price);
-        const item = cart[id];
-        showCartToast(`${item.name} added to cart.`);
-      });
-    }
+  const plusBtn = group.querySelector(".btn-cart-plus");
+  const minusBtn = group.querySelector(".btn-cart-minus");
+  const qtyBtn = document.getElementById(`qty-${id}`);
 
-    if (minusBtn) {
-      minusBtn.addEventListener("click", () => {
-        adjustCart(id, -1);
-      });
-    }
-  });
+  if (qtyBtn) {
+    qtyBtn.textContent = cart[id].qty;
+  }
+
+  if (plusBtn) {
+    plusBtn.addEventListener("click", () => {
+      adjustCart(id, +1, name, price);
+      const item = cart[id];
+      showCartToast(`${item.name} added to cart.`);
+    });
+  }
+
+  if (minusBtn) {
+    minusBtn.addEventListener("click", () => {
+      adjustCart(id, -1);
+    });
+  }
+});
+
 
   // Initial UI sync
   updateCartUI();

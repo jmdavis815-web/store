@@ -28,7 +28,6 @@ i {
 
 body a {
   text-decoration: none;
-  color: black;
 }
 
 body .carousel-index img {
@@ -36,3 +35,8 @@ body .carousel-index img {
   size: cover;
 }
 
+@media (min-width: 990px) {
+.navbar-brand {
+  margin-left: 10%;
+}
+}

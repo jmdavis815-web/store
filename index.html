@@ -13,13 +13,10 @@
 </head>
 <body>
     <!-- NavBar -->
-    <nav class="navbar bg-body-tertiary sticky-top mb-5">
+    <nav class="navbar navbar-expand-lg bg-body-tertiary sticky-top mb-5">
   <div class="container-fluid">
     <a href="cart.html" type="button"><i class="cart bi bi-cart4 position-relative m-2"></i><span id="cartBadge" class="top-0 start-100 translate-middle badge rounded-pill bg-danger"></span>
-  
-    <span id="priceTotal">
-
-    </span></a>
+    <span id="priceTotal"></span></a>
     <a class="navbar-brand" href="index.html">Offcanvas navbar</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
@@ -51,9 +48,9 @@
             </ul>
           </li>
         </ul>
-        <form class="d-flex mt-3" role="search">
-          <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"/>
-          <button class="btn btn-outline-success" type="submit">Search</button>
+        <form class="d-flex mt-3" role="search" action="search.html" method="GET">
+            <input id="searchInput" name="q" class="form-control me-2" type="search" placeholder="Search" aria-label="Search" />
+            <button class="btn btn-outline-success" type="submit">Search</button>
         </form>
       </div>
     </div>
@@ -120,23 +117,20 @@
                         </div>
                         <div class="col-6">
                             <div class="card-body">
-                                <a href="chakra-water.html"><h5 class="card-title">$24.99</h5></a>
+                                <h5 class="card-title">$24.99</h5>
                                 <p class="card-text">
-                                    Rake infused water
+                                    Reiki infused water
                                 </p>
                                 <div class="btn-group" role="group" aria-label="Basic outlined example"
-     data-product-id="chakraWater"
-     data-product-name="Chakra Water"
-     data-product-price="25.99">
-  <button type="button" class="btn btn-danger btn-cart-minus">
-    <i class="bi bi-cart-dash"></i>
-  </button>
-  <button id="qty-chakraWater" type="button" class="btn btn-outline">0</button>
-  <button type="button" class="btn btn-success btn-cart-plus">
-    <i class="bi bi-cart-plus"></i>
-  </button>
-</div>
-
+                                    data-product-id="chakraWater">
+                                    <button type="button" class="btn btn-danger btn-cart-minus">
+                                        <i class="bi bi-cart-dash"></i>
+                                    </button>
+                                    <button id="qty-chakraWater" type="button" class="btn btn-outline">0</button>
+                                    <button type="button" class="btn btn-success btn-cart-plus">
+                                        <i class="bi bi-cart-plus"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
