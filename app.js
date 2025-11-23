@@ -98,28 +98,29 @@ function updateCartUI() {
 function adjustCart(productId, delta, name, price) {
   if (!cart[productId]) {
     cart[productId] = {
-      name: name || "Item",
-      price: parseFloat(price) || 0,
+      name: name || (PRODUCT_DATA[productId]?.name ?? "Item"),
+      price: parseFloat(price ?? PRODUCT_DATA[productId]?.price ?? 0),
       qty: 0
     };
   }
 
   const limit = INVENTORY[productId];
+  const currentQty = cart[productId].qty;
+  const nextQty = currentQty + delta;
 
-  // Enforce inventory
-  if (delta > 0 && limit !== undefined && cart[productId].qty >= limit) {
+  // If we're trying to ADD and that would exceed stock, block it
+  if (delta > 0 && limit !== undefined && nextQty > limit) {
     showCartToast(`Only ${limit} of ${cart[productId].name} in stock.`);
-    return;
+    return false; // ⟵ nothing added
   }
 
-  cart[productId].qty += delta;
-
-  if (cart[productId].qty < 0) {
-    cart[productId].qty = 0;
-  }
+  // Apply the change, but don't go below 0
+  cart[productId].qty = Math.max(0, nextQty);
 
   saveCart();
   updateCartUI();
+
+  return true; // ⟵ successfully changed
 }
 
 // ===== PAGE INITIALIZATION (product pages, index.html, etc.) =====
@@ -159,12 +160,16 @@ productGroups.forEach(group => {
   }
 
   if (plusBtn) {
-    plusBtn.addEventListener("click", () => {
-      adjustCart(id, +1, name, price);
+  plusBtn.addEventListener("click", () => {
+    const changed = adjustCart(id, +1, name, price);
+
+    if (changed) {
       const item = cart[id];
       showCartToast(`${item.name} added to cart.`);
-    });
-  }
+    }
+    // If not changed, adjustCart already showed the "Only X in stock" toast
+  });
+}
 
   if (minusBtn) {
     minusBtn.addEventListener("click", () => {

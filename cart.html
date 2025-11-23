@@ -247,42 +247,49 @@
       }
 
       // Plus / minus / remove actions
-      cartTableBody.addEventListener("click", (e) => {
-        const plusBtn   = e.target.closest(".btn-cart-plus");
-        const minusBtn  = e.target.closest(".btn-cart-minus");
-        const removeBtn = e.target.closest(".btn-remove-item");
+      // Plus / minus / remove actions
+cartTableBody.addEventListener("click", (e) => {
+  const plusBtn   = e.target.closest(".btn-cart-plus");
+  const minusBtn  = e.target.closest(".btn-cart-minus");
+  const removeBtn = e.target.closest(".btn-remove-item");
 
-        if (!plusBtn && !minusBtn && !removeBtn) return;
+  if (!plusBtn && !minusBtn && !removeBtn) return;
 
-        let group = null;
-        if (plusBtn || minusBtn) {
-          group = (plusBtn || minusBtn).closest(".btn-group[data-product-id]");
-        } else if (removeBtn) {
-          group = removeBtn.closest("tr").querySelector(".btn-group[data-product-id]");
-        }
+  let group = null;
+  if (plusBtn || minusBtn) {
+    group = (plusBtn || minusBtn).closest(".btn-group[data-product-id]");
+  } else if (removeBtn) {
+    group = removeBtn.closest("tr").querySelector(".btn-group[data-product-id]");
+  }
 
-        if (!group) return;
+  if (!group) return;
 
-        const id    = group.dataset.productId;
-        const name  = group.dataset.productName;
-        const price = parseFloat(group.dataset.productPrice) || 0;
+  const id    = group.dataset.productId;
+  const name  = group.dataset.productName;
+  const price = parseFloat(group.dataset.productPrice) || 0;
 
-        if (plusBtn) {
-          adjustCart(id, +1, name, price);
-          const c = loadCart();
-          showCartToast(`Added another ${c[id].name}.`);
-          renderCartTable();
-        } else if (minusBtn) {
-          adjustCart(id, -1);
-          renderCartTable();
-        } else if (removeBtn) {
-          const c = loadCart();
-          delete c[id];
-          saveCart();
-          updateCartUI();
-          renderCartTable();
-        }
-      });
+  if (plusBtn) {
+    const changed = adjustCart(id, +1, name, price);
+
+    if (changed) {
+      const c = loadCart();
+      showCartToast(`Added another ${c[id].name}.`);
+    }
+    // If not changed, adjustCart already showed the "Only X in stock" message
+    renderCartTable();
+
+  } else if (minusBtn) {
+    adjustCart(id, -1);
+    renderCartTable();
+
+  } else if (removeBtn) {
+    const c = loadCart();
+    delete c[id];
+    saveCart();
+    updateCartUI();
+    renderCartTable();
+  }
+});
 
       // Clear entire cart
       clearCartBtn.addEventListener("click", () => {
