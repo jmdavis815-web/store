@@ -21,8 +21,8 @@ body a {
   color: black;
 }
 
-.carousel-index img {
-  size: cover;
+body .carousel-index img {
   position: center;
+  height: fit-content;
 }
 
