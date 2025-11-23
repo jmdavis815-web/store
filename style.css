@@ -3,3 +3,7 @@
     color-scheme: dark;
   }
 }
+
+.carousel-inner {
+    border-radius: 5px;
+}
