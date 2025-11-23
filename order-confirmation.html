@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
   <title>Order Confirmation</title>
 
   <link href="style.css" rel="stylesheet">
@@ -11,6 +12,18 @@
 </head>
 
 <body>
+  <!-- Optional navbar so it feels like the rest of the store -->
+  <nav class="navbar bg-body-tertiary sticky-top mb-4">
+    <div class="container-fluid">
+      <a href="cart.html" type="button">
+        <i class="cart bi bi-cart4 position-relative m-2"></i>
+        <span id="cartBadge" class="top-0 start-100 translate-middle badge rounded-pill bg-danger"></span>
+        <span id="priceTotal"></span>
+      </a>
+      <a class="navbar-brand" href="index.html">Store</a>
+    </div>
+  </nav>
+
   <div class="container my-5">
     <div class="text-center mb-4">
       <h1 class="fw-bold">Thank You for Your Order! ✨</h1>
@@ -66,62 +79,65 @@
   </div>
 
   <script>
-  document.addEventListener("DOMContentLoaded", () => {
-    // Try to read the last order from localStorage
-    const raw = localStorage.getItem("lastOrder");
-    let order = null;
+    document.body.classList.add("page-loaded");
 
-    try {
-      order = raw ? JSON.parse(raw) : null;
-    } catch (e) {
-      order = null;
-    }
+    document.addEventListener("DOMContentLoaded", () => {
+      // Debug log so we can see what's in localStorage
+      const raw = localStorage.getItem("lastOrder");
+      console.log("lastOrder raw on confirmation page:", raw);
 
-    // If no order found, show a friendly message instead of "blank"
-    if (!order || !order.items) {
-      const cardBody = document.querySelector(".card-body");
-      cardBody.innerHTML = `
-        <h4 class="mb-3">No Recent Order Found</h4>
-        <p class="mb-3">
-          We couldn’t find a recent order to display. This usually happens if you visit this page directly
-          without going through checkout.
-        </p>
-        <a href="index.html" class="btn btn-primary">Return to Store</a>
-      `;
-      return;
-    }
+      let order = null;
+      try {
+        order = raw ? JSON.parse(raw) : null;
+      } catch (e) {
+        console.error("Error parsing lastOrder JSON:", e);
+        order = null;
+      }
 
-    // Generate order number + date
-    document.getElementById("orderNumber").textContent =
-      "RW-" + Math.floor(Math.random() * 999999).toString().padStart(6, "0");
+      // If no order found, show a friendly message instead of looking blank
+      if (!order || !order.items) {
+        const cardBody = document.querySelector(".card-body");
+        cardBody.innerHTML = `
+          <h4 class="mb-3">No Recent Order Found</h4>
+          <p class="mb-3">
+            We couldn’t find a recent order to display. This usually happens if you visit this page directly
+            without going through checkout.
+          </p>
+          <a href="index.html" class="btn btn-primary">Return to Store</a>
+        `;
+        return;
+      }
 
-    document.getElementById("orderDate").textContent =
-      new Date().toLocaleString();
+      // Generate order number + date
+      document.getElementById("orderNumber").textContent =
+        "RW-" + Math.floor(Math.random() * 999999).toString().padStart(6, "0");
 
-    // Fill totals (we stored them as strings like "$24.99")
-    document.getElementById("sumSubtotal").textContent = order.subtotal;
-    document.getElementById("sumTax").textContent      = order.tax;
-    document.getElementById("sumShipping").textContent = order.shipping;
-    document.getElementById("sumTotal").textContent    = order.total;
+      document.getElementById("orderDate").textContent =
+        new Date().toLocaleString();
 
-    // Fill purchased items
-    const list = document.getElementById("orderItems");
-    list.innerHTML = "";
+      // Fill totals (stored as strings like "$24.99")
+      document.getElementById("sumSubtotal").textContent = order.subtotal;
+      document.getElementById("sumTax").textContent      = order.tax;
+      document.getElementById("sumShipping").textContent = order.shipping;
+      document.getElementById("sumTotal").textContent    = order.total;
 
-    order.items.forEach(([id, item]) => {
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td>${item.name}</td>
-        <td class="text-end">${item.qty}</td>
-        <td class="text-end">$${(item.qty * item.price).toFixed(2)}</td>
-      `;
-      list.appendChild(row);
+      // Fill purchased items
+      const list = document.getElementById("orderItems");
+      list.innerHTML = "";
+
+      order.items.forEach(([id, item]) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${item.name}</td>
+          <td class="text-end">${item.qty}</td>
+          <td class="text-end">$${(item.qty * item.price).toFixed(2)}</td>
+        `;
+        list.appendChild(row);
+      });
+
+      // Clear the temporary order after showing it, so refresh doesn't reuse it
+      localStorage.removeItem("lastOrder");
     });
-
-    // Clear the temporary order after showing it
-    localStorage.removeItem("lastOrder");
-  });
-</script>
-
+  </script>
 </body>
 </html>
