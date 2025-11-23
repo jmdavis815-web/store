@@ -15,9 +15,11 @@
     <!-- NavBar -->
     <nav class="navbar bg-body-tertiary sticky-top mb-5">
   <div class="container-fluid">
-    <a href="cart.html" type="button"><i class="cart bi bi-cart4 position-relative m-2"></i><span id="cartBadge" class="top-0 start-100 translate-middle badge rounded-pill bg-danger">0
-    <span class="visually-hidden">unread messages</span>
-  </span></a>
+    <a href="cart.html" type="button"><i class="cart bi bi-cart4 position-relative m-2"></i><span id="cartBadge" class="top-0 start-100 translate-middle badge rounded-pill bg-danger"></span>
+  
+    <span id="priceTotal">
+
+    </span></span></a>
     <a class="navbar-brand" href="index.html">Offcanvas navbar</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
@@ -100,9 +102,9 @@
                     Rake infused water.
                 </p>
                 <div class="btn-group" role="group" aria-label="Basic outlined example">
-                    <button type="button" class="btn btn-danger"><i class="bi bi-cart-dash"></i></button>
-                    <button id="chakraWaterCart" type="button" class="btn btn-outline-success">0</button>
-                    <button type="button" class="btn btn-success"><i class="bi bi-cart-plus"></i></button>
+                    <button onclick="removeCartTest ()" type="button" class="btn btn-danger"><i class="bi bi-cart-dash"></i></button>
+                    <button id="cartItem" type="button" class="btn btn-outline">0</button>
+                    <button onclick="addCartTest ()" type="button" class="btn btn-success"><i class="bi bi-cart-plus"></i></button>
                 </div>
             </div>
         </div>
