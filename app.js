@@ -75,8 +75,9 @@ async function loadInventoryFromDB() {
     const snap = await getDoc(invRef);
 
     if (snap.exists()) {
-      const data = snap.data();
-      INVENTORY = { ...INVENTORY, ...data }; // merge, just in case
+      const data = snap.data() || {};
+      // mutate existing INVENTORY so window.INVENTORY stays in sync
+      Object.assign(INVENTORY, data);
     } else {
       // First time: create the doc with initial inventory
       await setDoc(invRef, INVENTORY);
@@ -314,3 +315,12 @@ window.updateCartUI = updateCartUI;
 window.adjustCart = adjustCart;
 window.showCartToast = showCartToast;
 window.updateStockDisplays = updateStockDisplays;
+
+function clearCart() {
+  cart = {};
+  saveCart();
+  updateCartUI();
+}
+
+// Expose functions globally (for inline scripts)
+window.clearCart = clearCart;

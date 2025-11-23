@@ -263,13 +263,20 @@
           }
         });
 
-        saveInventory();
+        // === Simulate checkout: update inventory, clear cart ===
+entries.forEach(([id, item]) => {
+  if (INVENTORY[id] !== undefined) {
+    INVENTORY[id] = Math.max(0, INVENTORY[id] - item.qty);
+  }
+});
 
-        cart = {};
-        saveCart();
-        updateCartUI();
+saveInventory();
 
-        showCartToast("Thank you! Your (simulated) order has been placed.");
+// Use the helper from app.js (module)
+clearCart();
+
+showCartToast("Thank you! Your (simulated) order has been placed.");
+
 
         // Save order summary to display on confirmation page
         localStorage.setItem("lastOrder", JSON.stringify({
