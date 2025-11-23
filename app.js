@@ -1,59 +1,94 @@
-// ===== Cart Setup =====
-const PRICE_PER_ITEM = 25.99;
+// ===== Simple Cart Logic =====
+const STORAGE_KEY = "storeCart";
 
-// Load saved cart value or default to 0
-let cart = parseInt(localStorage.getItem("cart") || "0", 10);
+// Load cart from localStorage or start fresh
+let cart = {};
+try {
+  cart = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+} catch (e) {
+  cart = {};
+}
 
-// These will be set after the DOM is ready
-let cartBadge;
-let cartItem;
-let priceTotal;
-
-// Grab elements once the page is loaded, then sync UI
-document.addEventListener("DOMContentLoaded", () => {
-    cartBadge  = document.getElementById("cartBadge"); // navbar badge
-    cartItem   = document.getElementById("cartItem");  // middle button on product
-    priceTotal = document.getElementById("priceTotal"); // total in navbar (or cart page)
-
-    updateUI();
-});
-
-// Save to localStorage so all pages can read it
+// Save cart
 function saveCart() {
-    localStorage.setItem("cart", cart.toString());
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
 }
 
-// Update all visible elements that exist on this page
-function updateUI() {
-    const total = cart * PRICE_PER_ITEM;
+// Update navbar badge + price total + per-product qty
+function updateCartUI() {
+  const cartBadge = document.getElementById("cartBadge");
+  const priceTotal = document.getElementById("priceTotal");
 
-    if (cartBadge) {
-        cartBadge.textContent = cart;
-    }
+  let totalQty = 0;
+  let totalPrice = 0;
 
-    if (cartItem) {
-        cartItem.textContent = cart;
-    }
+  Object.values(cart).forEach(item => {
+    totalQty += item.qty;
+    totalPrice += item.qty * item.price;
+  });
 
-    if (priceTotal) {
-        priceTotal.textContent = `Total: $${total.toFixed(2)}`;
+  // Badge
+  if (cartBadge) {
+    cartBadge.textContent = totalQty > 0 ? totalQty : "";
+  }
+
+  // Price in navbar
+  if (priceTotal) {
+    priceTotal.textContent = totalPrice > 0 ? `$${totalPrice.toFixed(2)}` : "";
+  }
+
+  // Per-product quantity buttons
+  Object.keys(cart).forEach(productId => {
+    const qtyBtn = document.getElementById(`qty-${productId}`);
+    if (qtyBtn) {
+      qtyBtn.textContent = cart[productId].qty;
     }
+  });
 }
 
-// Called by: onclick="addCartTest()"
-function addCartTest() {
-    if (cart < 99) {
-        cart++;
+// Initialize once DOM is ready
+document.addEventListener("DOMContentLoaded", () => {
+  const productGroups = document.querySelectorAll(
+    ".btn-group[data-product-id]"
+  );
+
+  productGroups.forEach(group => {
+    const productId = group.dataset.productId;
+    const name = group.dataset.productName || "Item";
+    const price = parseFloat(group.dataset.productPrice) || 0;
+
+    // Ensure cart entry exists
+    if (!cart[productId]) {
+      cart[productId] = { name, price, qty: 0 };
+    }
+
+    const plusBtn = group.querySelector(".btn-cart-plus");
+    const minusBtn = group.querySelector(".btn-cart-minus");
+    const qtyBtn = document.getElementById(`qty-${productId}`);
+
+    // Safety check
+    if (!plusBtn || !minusBtn || !qtyBtn) return;
+
+    // Set initial qty text
+    qtyBtn.textContent = cart[productId].qty;
+
+    plusBtn.addEventListener("click", () => {
+      cart[productId].qty += 1;
+      qtyBtn.textContent = cart[productId].qty;
+      saveCart();
+      updateCartUI();
+    });
+
+    minusBtn.addEventListener("click", () => {
+      if (cart[productId].qty > 0) {
+        cart[productId].qty -= 1;
+        qtyBtn.textContent = cart[productId].qty;
         saveCart();
-        updateUI();
-    }
-}
+        updateCartUI();
+      }
+    });
+  });
 
-// Called by: onclick="removeCartTest()"
-function removeCartTest() {
-    if (cart > 0) {
-        cart--;
-        saveCart();
-        updateUI();
-    }
-}
+  // Initial paint
+  updateCartUI();
+});

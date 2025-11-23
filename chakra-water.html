@@ -101,11 +101,19 @@
                 <p>
                     Rake infused water.
                 </p>
-                <div class="btn-group" role="group" aria-label="Basic outlined example">
-                    <button onclick="removeCartTest ()" type="button" class="btn btn-danger"><i class="bi bi-cart-dash"></i></button>
-                    <button id="cartItem" type="button" class="btn btn-outline">0</button>
-                    <button onclick="addCartTest ()" type="button" class="btn btn-success"><i class="bi bi-cart-plus"></i></button>
-                </div>
+                <div class="btn-group" role="group" aria-label="Basic outlined example"
+     data-product-id="chakraWater"
+     data-product-name="Chakra Water"
+     data-product-price="25.99">
+  <button type="button" class="btn btn-danger btn-cart-minus">
+    <i class="bi bi-cart-dash"></i>
+  </button>
+  <button id="qty-chakraWater" type="button" class="btn btn-outline">0</button>
+  <button type="button" class="btn btn-success btn-cart-plus">
+    <i class="bi bi-cart-plus"></i>
+  </button>
+</div>
+
             </div>
         </div>
      </div>
