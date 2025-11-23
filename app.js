@@ -1,4 +1,34 @@
-// ===== PRODUCT CATALOG (single source of truth) =====
+// =======================
+//  FIREBASE SETUP
+// =======================
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-analytics.js";
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc
+} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyDS7_y8tvBkbBk48OD8z6XzU9e1_s_zqyI",
+  authDomain: "magicmoonstore-776e1.firebaseapp.com",
+  projectId: "magicmoonstore-776e1",
+  storageBucket: "magicmoonstore-776e1.firebasestorage.app",
+  messagingSenderId: "74334250156",
+  appId: "1:74334250156:web:78f4a3937c5795155eeb09",
+  measurementId: "G-VN37CQNL8V"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const db = getFirestore(app);
+
+// =======================
+//  PRODUCT CATALOG
+// =======================
 const PRODUCT_DATA = {
   chakraWater: {
     id: "chakraWater",
@@ -12,16 +42,102 @@ const PRODUCT_DATA = {
   protectionCandle: {
     id: "protectionCandle",
     name: "Protection Candle",
-    price: 14.99,
-    description: "Hand-poured protection spell candle",
+    price: 12.99,
+    description: "Hand-poured protection spell candle.",
     image: "protection-candle-img.png",
-    url: "protectin-candle.html",
+    url: "protection-candle.html",
     stock: 10
   }
-  // Add more products here as you build your store...
+  // Add more products here...
 };
 
-// ===== CART CORE =====
+// =======================
+//  INVENTORY (Firestore)
+// =======================
+
+// This will hold the live inventory numbers keyed by product ID
+let INVENTORY = {};
+
+// Start with defaults from PRODUCT_DATA so we always have something
+for (const [id, product] of Object.entries(PRODUCT_DATA)) {
+  if (typeof product.stock === "number") {
+    INVENTORY[id] = product.stock;
+  }
+}
+
+/**
+ * Load inventory from Firestore.
+ * If no document exists yet, create it from PRODUCT_DATA.stock.
+ */
+async function loadInventoryFromDB() {
+  try {
+    const invRef = doc(db, "store", "inventory");
+    const snap = await getDoc(invRef);
+
+    if (snap.exists()) {
+      const data = snap.data();
+      INVENTORY = { ...INVENTORY, ...data }; // merge, just in case
+    } else {
+      // First time: create the doc with initial inventory
+      await setDoc(invRef, INVENTORY);
+    }
+
+    updateStockDisplays();
+  } catch (err) {
+    console.error("Error loading inventory from Firestore:", err);
+  }
+}
+
+/**
+ * Save current INVENTORY into Firestore.
+ * This is used by checkout, restock, etc.
+ */
+async function saveInventory() {
+  try {
+    const invRef = doc(db, "store", "inventory");
+    await setDoc(invRef, INVENTORY);
+  } catch (err) {
+    console.error("Error saving inventory to Firestore:", err);
+  }
+}
+
+/**
+ * Update stock labels on the page, if present.
+ * Looks for elements with IDs: stock-<productId>
+ */
+function updateStockDisplays() {
+  Object.keys(INVENTORY).forEach((id) => {
+    const stockEl = document.getElementById(`stock-${id}`);
+    if (!stockEl) return;
+
+    const amount = INVENTORY[id] ?? 0;
+    if (amount <= 0) {
+      stockEl.textContent = "Out of stock";
+      stockEl.classList.add("text-danger");
+    } else {
+      stockEl.textContent = `In stock: ${amount}`;
+      stockEl.classList.remove("text-danger");
+    }
+
+    // Also optionally disable buttons if out of stock
+    const group = document.querySelector(`.btn-group[data-product-id="${id}"]`);
+    if (group) {
+      const plusBtn = group.querySelector(".btn-cart-plus");
+      if (plusBtn) {
+        plusBtn.disabled = amount <= 0;
+      }
+      if (amount <= 0) {
+        group.style.opacity = "0.5";
+      } else {
+        group.style.opacity = "1";
+      }
+    }
+  });
+}
+
+// =======================
+//  CART CORE (localStorage)
+// =======================
 const STORAGE_KEY = "storeCart";
 
 // Global cart object
@@ -32,35 +148,14 @@ try {
   cart = {};
 }
 
-// ===== INVENTORY (persistent, derived from PRODUCT_DATA on first run) =====
-const INVENTORY_KEY = "storeInventory";
-let INVENTORY = {};
-
-// Try to load saved inventory from localStorage
-try {
-  const savedInv = JSON.parse(localStorage.getItem(INVENTORY_KEY));
-  if (savedInv && typeof savedInv === "object") {
-    INVENTORY = savedInv;
-  } else {
-    INVENTORY = {};
-  }
-} catch (e) {
-  INVENTORY = {};
+// Save cart to localStorage
+function saveCart() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
 }
 
-// If no saved inventory, build it from PRODUCT_DATA (first run / reset)
-if (Object.keys(INVENTORY).length === 0) {
-  for (const [id, product] of Object.entries(PRODUCT_DATA)) {
-    if (product.stock !== undefined) {
-      INVENTORY[id] = product.stock;
-    }
-  }
-  localStorage.setItem(INVENTORY_KEY, JSON.stringify(INVENTORY));
-}
-
-// Helper to save inventory
-function saveInventory() {
-  localStorage.setItem(INVENTORY_KEY, JSON.stringify(INVENTORY));
+// Convenience getter
+function loadCart() {
+  return cart;
 }
 
 // Toast popup for add-to-cart etc.
@@ -73,16 +168,6 @@ function showCartToast(message) {
 
   const toast = bootstrap.Toast.getOrCreateInstance(toastEl);
   toast.show();
-}
-
-// Save cart to localStorage
-function saveCart() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
-}
-
-// Convenience getter
-function loadCart() {
-  return cart;
 }
 
 // Update navbar badge + top total + per-product quantities
@@ -116,24 +201,30 @@ function updateCartUI() {
   }
 }
 
-// Adjust cart by delta (±1, etc.)
+// =======================
+//  adjustCart with Firestore-backed INVENTORY
+// =======================
 function adjustCart(productId, delta, name, price) {
+  // Ensure a cart entry exists
   if (!cart[productId]) {
+    const fallbackProduct = PRODUCT_DATA[productId] || {};
     cart[productId] = {
-      name: name || (PRODUCT_DATA[productId]?.name ?? "Item"),
-      price: parseFloat(price ?? PRODUCT_DATA[productId]?.price ?? 0),
+      name: name || fallbackProduct.name || "Item",
+      price: parseFloat(
+        price ?? fallbackProduct.price ?? 0
+      ),
       qty: 0
     };
   }
 
-  const limit = INVENTORY[productId];
+  const limit = INVENTORY[productId]; // from Firestore (or default)
   const currentQty = cart[productId].qty;
   const nextQty = currentQty + delta;
 
   // If we're trying to ADD and that would exceed stock, block it
-  if (delta > 0 && limit !== undefined && nextQty > limit) {
+  if (delta > 0 && typeof limit === "number" && nextQty > limit) {
     showCartToast(`Only ${limit} of ${cart[productId].name} in stock.`);
-    return false; // nothing added
+    return false; // nothing changed
   }
 
   // Apply the change, but don't go below 0
@@ -145,7 +236,10 @@ function adjustCart(productId, delta, name, price) {
   return true; // successfully changed
 }
 
-// ===== PAGE INITIALIZATION (product pages, index.html, etc.) =====
+// =======================
+//  DOM WIRING FOR PRODUCT PAGES
+// =======================
+
 document.addEventListener("DOMContentLoaded", () => {
   // Fade-in effect
   document.body.classList.add("page-loaded");
@@ -153,7 +247,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Wire up all product controls on this page
   const productGroups = document.querySelectorAll(".btn-group[data-product-id]");
 
-  productGroups.forEach(group => {
+  productGroups.forEach((group) => {
     const id = group.dataset.productId;
     const product = PRODUCT_DATA[id] || {};
 
@@ -168,7 +262,7 @@ document.addEventListener("DOMContentLoaded", () => {
       0
     );
 
-    // Ensure entry exists in cart
+    // Ensure cart entry exists
     if (!cart[id]) {
       cart[id] = { name, price, qty: 0 };
     }
@@ -181,19 +275,9 @@ document.addEventListener("DOMContentLoaded", () => {
       qtyBtn.textContent = cart[id].qty;
     }
 
-    // Disable buttons if out of stock
-    const currentStock = INVENTORY[id];
-    if (currentStock !== undefined && currentStock <= 0) {
-      if (plusBtn) plusBtn.disabled = true;
-      if (minusBtn) minusBtn.disabled = true;
-      if (qtyBtn) qtyBtn.textContent = "0";
-      group.style.opacity = "0.5";
-    }
-
     if (plusBtn) {
       plusBtn.addEventListener("click", () => {
         const changed = adjustCart(id, +1, name, price);
-
         if (changed) {
           const item = cart[id];
           showCartToast(`${item.name} added to cart.`);
@@ -209,36 +293,24 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Update stock labels under products, if present
-  Object.keys(INVENTORY).forEach(pid => {
-    const stockEl = document.getElementById(`stock-${pid}`);
-    if (!stockEl) return;
+  // Load inventory from Firestore and update stock text / buttons
+  loadInventoryFromDB();
 
-    const amount = INVENTORY[pid];
-
-    if (amount <= 0) {
-      stockEl.textContent = "Out of stock";
-      stockEl.classList.add("text-danger");
-      stockEl.classList.remove("text-muted");
-    } else {
-      stockEl.textContent = `In stock: ${amount}`;
-      stockEl.classList.add("text-muted");
-      stockEl.classList.remove("text-danger");
-    }
-  });
-
-  // Initial UI sync
+  // Initial cart UI sync
   updateCartUI();
 });
 
-// ADMIN: Add stock to an item
-function addStock(productId, amount) {
-  if (INVENTORY[productId] !== undefined) {
-    INVENTORY[productId] += amount;
-    saveInventory();
-    console.log(`Added ${amount} to ${productId}. New total: ${INVENTORY[productId]}`);
-  } else {
-    console.error("Product not found:", productId);
-  }
-}
+// =======================
+//  Expose functions globally (for inline scripts in other pages)
+// =======================
 
+// So checkout.html, cart.html, restock.html, etc. can call these
+window.PRODUCT_DATA = PRODUCT_DATA;
+window.INVENTORY = INVENTORY;
+window.saveInventory = saveInventory;
+window.loadCart = loadCart;
+window.saveCart = saveCart;
+window.updateCartUI = updateCartUI;
+window.adjustCart = adjustCart;
+window.showCartToast = showCartToast;
+window.updateStockDisplays = updateStockDisplays;
