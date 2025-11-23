@@ -23,6 +23,6 @@ body a {
 
 body .carousel-index img {
   position: center;
-  height: fit-content;
+  size: cover;
 }
 
