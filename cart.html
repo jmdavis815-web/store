@@ -43,8 +43,8 @@
               <a class="nav-link" aria-current="page" href="index.html">Home</a>
             </li>
           </ul>
-          <form class="d-flex mt-3" role="search">
-            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"/>
+          <form class="d-flex mt-3" role="search" action="search.html" method="GET">
+            <input class="form-control me-2" type="search" name="q" placeholder="Search" aria-label="Search"/>
             <button class="btn btn-outline-success" type="submit">Search</button>
           </form>
         </div>
@@ -87,7 +87,7 @@
           <div class="input-group">
             <input type="text" id="discountCode" class="form-control"
                    placeholder="Enter code (try MAGIC10)">
-            <button id="applyDiscountBtn" class="btn btn-outline-primary">Apply</button>
+            <button id="applyDiscountBtn" class="btn btn-outline-primary" type="button">Apply</button>
           </div>
           <small id="discountHelp" class="text-muted">
             No discount code applied yet. Try <strong>MAGIC10</strong> for 10% off subtotal.
@@ -129,7 +129,7 @@
       </div>
 
       <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-        <button id="clearCartBtn" class="btn btn-outline-danger">
+        <button id="clearCartBtn" class="btn btn-outline-danger" type="button">
           <i class="bi bi-trash3"></i> Clear Cart
         </button>
 
@@ -137,9 +137,9 @@
           Continue Shopping
         </a>
 
-        <button class="btn btn-success">
+        <a href="checkout.html" class="btn btn-success">
           Proceed to Checkout
-        </button>
+        </a>
       </div>
 
       <!-- For backwards compatibility -->
@@ -181,11 +181,11 @@
         if (!entries.length) {
           emptyCartMsg.classList.remove("d-none");
           cartContent.classList.add("d-none");
-          subtotalEl.textContent      = "$0.00";
-          taxEl.textContent           = "$0.00";
-          shippingEl.textContent      = "$0.00";
-          discountEl.textContent      = "-$0.00";
-          grandTotalEl.textContent    = "$0.00";
+          subtotalEl.textContent       = "$0.00";
+          taxEl.textContent            = "$0.00";
+          shippingEl.textContent       = "$0.00";
+          discountEl.textContent       = "-$0.00";
+          grandTotalEl.textContent     = "$0.00";
           cartTotalDisplay.textContent = "Total: $0.00";
           updateCartUI();
           return;
@@ -236,60 +236,58 @@
         const discountAmt = subtotal * discountRate;
         const grandTotal  = subtotal + tax + shipping - discountAmt;
 
-        subtotalEl.textContent      = `$${subtotal.toFixed(2)}`;
-        taxEl.textContent           = `$${tax.toFixed(2)}`;
-        shippingEl.textContent      = `$${shipping.toFixed(2)}`;
-        discountEl.textContent      = `-$${discountAmt.toFixed(2)}`;
-        grandTotalEl.textContent    = `$${grandTotal.toFixed(2)}`;
+        subtotalEl.textContent       = `$${subtotal.toFixed(2)}`;
+        taxEl.textContent            = `$${tax.toFixed(2)}`;
+        shippingEl.textContent       = `$${shipping.toFixed(2)}`;
+        discountEl.textContent       = `-$${discountAmt.toFixed(2)}`;
+        grandTotalEl.textContent     = `$${grandTotal.toFixed(2)}`;
         cartTotalDisplay.textContent = `Total: $${grandTotal.toFixed(2)}`;
 
         updateCartUI();
       }
 
       // Plus / minus / remove actions
-      // Plus / minus / remove actions
-cartTableBody.addEventListener("click", (e) => {
-  const plusBtn   = e.target.closest(".btn-cart-plus");
-  const minusBtn  = e.target.closest(".btn-cart-minus");
-  const removeBtn = e.target.closest(".btn-remove-item");
+      cartTableBody.addEventListener("click", (e) => {
+        const plusBtn   = e.target.closest(".btn-cart-plus");
+        const minusBtn  = e.target.closest(".btn-cart-minus");
+        const removeBtn = e.target.closest(".btn-remove-item");
 
-  if (!plusBtn && !minusBtn && !removeBtn) return;
+        if (!plusBtn && !minusBtn && !removeBtn) return;
 
-  let group = null;
-  if (plusBtn || minusBtn) {
-    group = (plusBtn || minusBtn).closest(".btn-group[data-product-id]");
-  } else if (removeBtn) {
-    group = removeBtn.closest("tr").querySelector(".btn-group[data-product-id]");
-  }
+        let group = null;
+        if (plusBtn || minusBtn) {
+          group = (plusBtn || minusBtn).closest(".btn-group[data-product-id]");
+        } else if (removeBtn) {
+          group = removeBtn.closest("tr").querySelector(".btn-group[data-product-id]");
+        }
 
-  if (!group) return;
+        if (!group) return;
 
-  const id    = group.dataset.productId;
-  const name  = group.dataset.productName;
-  const price = parseFloat(group.dataset.productPrice) || 0;
+        const id    = group.dataset.productId;
+        const name  = group.dataset.productName;
+        const price = parseFloat(group.dataset.productPrice) || 0;
 
-  if (plusBtn) {
-    const changed = adjustCart(id, +1, name, price);
+        if (plusBtn) {
+          const changed = adjustCart(id, +1, name, price);
 
-    if (changed) {
-      const c = loadCart();
-      showCartToast(`Added another ${c[id].name}.`);
-    }
-    // If not changed, adjustCart already showed the "Only X in stock" message
-    renderCartTable();
+          if (changed) {
+            const c = loadCart();
+            showCartToast(`Added another ${c[id].name}.`);
+          }
+          renderCartTable();
 
-  } else if (minusBtn) {
-    adjustCart(id, -1);
-    renderCartTable();
+        } else if (minusBtn) {
+          adjustCart(id, -1);
+          renderCartTable();
 
-  } else if (removeBtn) {
-    const c = loadCart();
-    delete c[id];
-    saveCart();
-    updateCartUI();
-    renderCartTable();
-  }
-});
+        } else if (removeBtn) {
+          const c = loadCart();
+          delete c[id];
+          saveCart();
+          updateCartUI();
+          renderCartTable();
+        }
+      });
 
       // Clear entire cart
       clearCartBtn.addEventListener("click", () => {

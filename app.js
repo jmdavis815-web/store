@@ -32,22 +32,35 @@ try {
   cart = {};
 }
 
-// Optional inventory limits (per product ID) derived from PRODUCT_DATA
-const INVENTORY = {};
-for (const [id, product] of Object.entries(PRODUCT_DATA)) {
-  if (product.stock !== undefined) {
-    INVENTORY[id] = product.stock;
+// ===== INVENTORY (persistent, derived from PRODUCT_DATA on first run) =====
+const INVENTORY_KEY = "storeInventory";
+let INVENTORY = {};
+
+// Try to load saved inventory from localStorage
+try {
+  const savedInv = JSON.parse(localStorage.getItem(INVENTORY_KEY));
+  if (savedInv && typeof savedInv === "object") {
+    INVENTORY = savedInv;
+  } else {
+    INVENTORY = {};
   }
+} catch (e) {
+  INVENTORY = {};
 }
 
-// Save cart to localStorage
-function saveCart() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
+// If no saved inventory, build it from PRODUCT_DATA (first run / reset)
+if (Object.keys(INVENTORY).length === 0) {
+  for (const [id, product] of Object.entries(PRODUCT_DATA)) {
+    if (product.stock !== undefined) {
+      INVENTORY[id] = product.stock;
+    }
+  }
+  localStorage.setItem(INVENTORY_KEY, JSON.stringify(INVENTORY));
 }
 
-// Convenience getter
-function loadCart() {
-  return cart;
+// Helper to save inventory
+function saveInventory() {
+  localStorage.setItem(INVENTORY_KEY, JSON.stringify(INVENTORY));
 }
 
 // Toast popup for add-to-cart etc.
@@ -60,6 +73,16 @@ function showCartToast(message) {
 
   const toast = bootstrap.Toast.getOrCreateInstance(toastEl);
   toast.show();
+}
+
+// Save cart to localStorage
+function saveCart() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
+}
+
+// Convenience getter
+function loadCart() {
+  return cart;
 }
 
 // Update navbar badge + top total + per-product quantities
@@ -93,7 +116,6 @@ function updateCartUI() {
   }
 }
 
-
 // Adjust cart by delta (±1, etc.)
 function adjustCart(productId, delta, name, price) {
   if (!cart[productId]) {
@@ -111,7 +133,7 @@ function adjustCart(productId, delta, name, price) {
   // If we're trying to ADD and that would exceed stock, block it
   if (delta > 0 && limit !== undefined && nextQty > limit) {
     showCartToast(`Only ${limit} of ${cart[productId].name} in stock.`);
-    return false; // ⟵ nothing added
+    return false; // nothing added
   }
 
   // Apply the change, but don't go below 0
@@ -120,7 +142,7 @@ function adjustCart(productId, delta, name, price) {
   saveCart();
   updateCartUI();
 
-  return true; // ⟵ successfully changed
+  return true; // successfully changed
 }
 
 // ===== PAGE INITIALIZATION (product pages, index.html, etc.) =====
@@ -131,53 +153,79 @@ document.addEventListener("DOMContentLoaded", () => {
   // Wire up all product controls on this page
   const productGroups = document.querySelectorAll(".btn-group[data-product-id]");
 
-productGroups.forEach(group => {
-  const id = group.dataset.productId;
-  const product = PRODUCT_DATA[id] || {};
+  productGroups.forEach(group => {
+    const id = group.dataset.productId;
+    const product = PRODUCT_DATA[id] || {};
 
-  const name =
-    group.dataset.productName ||
-    product.name ||
-    "Item";
+    const name =
+      group.dataset.productName ||
+      product.name ||
+      "Item";
 
-  const price = parseFloat(
-    group.dataset.productPrice ||
-    product.price ||
-    0
-  );
+    const price = parseFloat(
+      group.dataset.productPrice ||
+      product.price ||
+      0
+    );
 
-  // Ensure entry exists
-  if (!cart[id]) {
-    cart[id] = { name, price, qty: 0 };
-  }
-
-  const plusBtn = group.querySelector(".btn-cart-plus");
-  const minusBtn = group.querySelector(".btn-cart-minus");
-  const qtyBtn = document.getElementById(`qty-${id}`);
-
-  if (qtyBtn) {
-    qtyBtn.textContent = cart[id].qty;
-  }
-
-  if (plusBtn) {
-  plusBtn.addEventListener("click", () => {
-    const changed = adjustCart(id, +1, name, price);
-
-    if (changed) {
-      const item = cart[id];
-      showCartToast(`${item.name} added to cart.`);
+    // Ensure entry exists in cart
+    if (!cart[id]) {
+      cart[id] = { name, price, qty: 0 };
     }
-    // If not changed, adjustCart already showed the "Only X in stock" toast
+
+    const plusBtn = group.querySelector(".btn-cart-plus");
+    const minusBtn = group.querySelector(".btn-cart-minus");
+    const qtyBtn = document.getElementById(`qty-${id}`);
+
+    if (qtyBtn) {
+      qtyBtn.textContent = cart[id].qty;
+    }
+
+    // Disable buttons if out of stock
+    const currentStock = INVENTORY[id];
+    if (currentStock !== undefined && currentStock <= 0) {
+      if (plusBtn) plusBtn.disabled = true;
+      if (minusBtn) minusBtn.disabled = true;
+      if (qtyBtn) qtyBtn.textContent = "0";
+      group.style.opacity = "0.5";
+    }
+
+    if (plusBtn) {
+      plusBtn.addEventListener("click", () => {
+        const changed = adjustCart(id, +1, name, price);
+
+        if (changed) {
+          const item = cart[id];
+          showCartToast(`${item.name} added to cart.`);
+        }
+        // If not changed, adjustCart already showed the "Only X in stock" toast
+      });
+    }
+
+    if (minusBtn) {
+      minusBtn.addEventListener("click", () => {
+        adjustCart(id, -1);
+      });
+    }
   });
-}
 
-  if (minusBtn) {
-    minusBtn.addEventListener("click", () => {
-      adjustCart(id, -1);
-    });
-  }
-});
+  // Update stock labels under products, if present
+  Object.keys(INVENTORY).forEach(pid => {
+    const stockEl = document.getElementById(`stock-${pid}`);
+    if (!stockEl) return;
 
+    const amount = INVENTORY[pid];
+
+    if (amount <= 0) {
+      stockEl.textContent = "Out of stock";
+      stockEl.classList.add("text-danger");
+      stockEl.classList.remove("text-muted");
+    } else {
+      stockEl.textContent = `In stock: ${amount}`;
+      stockEl.classList.add("text-muted");
+      stockEl.classList.remove("text-danger");
+    }
+  });
 
   // Initial UI sync
   updateCartUI();

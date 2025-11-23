@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Checkout</title>
+
+  <link href="style.css" rel="stylesheet">
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+          crossorigin="anonymous"></script>
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+</head>
+<body>
+  <!-- NavBar -->
+  <nav class="navbar bg-body-tertiary sticky-top mb-5">
+    <div class="container-fluid">
+      <a href="cart.html" type="button">
+        <i class="cart bi bi-cart4 position-relative m-2"></i>
+        <span id="cartBadge" class="top-0 start-100 translate-middle badge rounded-pill bg-danger"></span>
+        <span id="priceTotal"></span>
+      </a>
+      <a class="navbar-brand" href="index.html">Store</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas"
+              data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar"
+           aria-labelledby="offcanvasNavbarLabel">
+        <div class="offcanvas-header">
+          <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Menu</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+          <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+            <li class="nav-item">
+              <a class="nav-link" aria-current="page" href="index.html">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="cart.html">Cart</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="container mb-5">
+    <h2 class="mb-4">Checkout</h2>
+
+    <div class="row g-4">
+      <!-- Left: customer details -->
+      <div class="col-lg-7">
+        <form id="checkoutForm" class="card">
+          <div class="card-body">
+            <h5 class="card-title mb-3">Shipping & Contact</h5>
+
+            <div class="mb-3">
+              <label for="fullName" class="form-label">Full Name</label>
+              <input type="text" id="fullName" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+              <label for="email" class="form-label">Email</label>
+              <input type="email" id="email" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+              <label for="address" class="form-label">Address</label>
+              <input type="text" id="address" class="form-control" required>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="city" class="form-label">City</label>
+                <input type="text" id="city" class="form-control" required>
+              </div>
+              <div class="col-md-3 mb-3">
+                <label for="state" class="form-label">State</label>
+                <input type="text" id="state" class="form-control" required>
+              </div>
+              <div class="col-md-3 mb-3">
+                <label for="zip" class="form-label">ZIP</label>
+                <input type="text" id="zip" class="form-control" required>
+              </div>
+            </div>
+
+            <hr class="my-4">
+
+            <h5 class="card-title mb-3">Payment (Simulated)</h5>
+
+            <div class="mb-3">
+              <label for="cardName" class="form-label">Name on Card</label>
+              <input type="text" id="cardName" class="form-control" required>
+            </div>
+
+            <div class="row">
+              <div class="col-md-8 mb-3">
+                <label for="cardNumber" class="form-label">Card Number</label>
+                <input type="text" id="cardNumber" class="form-control"
+                       placeholder="1111 2222 3333 4444" required>
+              </div>
+              <div class="col-md-2 mb-3">
+                <label for="cardExp" class="form-label">Exp</label>
+                <input type="text" id="cardExp" class="form-control" placeholder="MM/YY" required>
+              </div>
+              <div class="col-md-2 mb-3">
+                <label for="cardCvv" class="form-label">CVV</label>
+                <input type="text" id="cardCvv" class="form-control" placeholder="123" required>
+              </div>
+            </div>
+
+            <p class="text-muted small mt-2">
+              This is a <strong>simulated checkout</strong>. No real payment is processed.
+            </p>
+
+            <button id="placeOrderBtn" type="submit" class="btn btn-success mt-3 w-100">
+              Place Order
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Right: order summary -->
+      <div class="col-lg-5">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title mb-3">Order Summary</h5>
+
+            <div class="table-responsive mb-3">
+              <table class="table table-sm align-middle">
+                <thead>
+                  <tr>
+                    <th>Item</th>
+                    <th class="text-end">Qty</th>
+                    <th class="text-end">Subtotal</th>
+                  </tr>
+                </thead>
+                <tbody id="checkoutTableBody">
+                  <!-- Filled by JS -->
+                </tbody>
+              </table>
+            </div>
+
+            <div class="d-flex justify-content-between">
+              <span>Subtotal</span>
+              <span id="coSubtotal">$0.00</span>
+            </div>
+            <div class="d-flex justify-content-between">
+              <span>Tax (8%)</span>
+              <span id="coTax">$0.00</span>
+            </div>
+            <div class="d-flex justify-content-between">
+              <span>Shipping</span>
+              <span id="coShipping">$0.00</span>
+            </div>
+
+            <hr>
+
+            <div class="d-flex justify-content-between fw-bold">
+              <span>Grand Total</span>
+              <span id="coGrandTotal">$0.00</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Shared cart logic -->
+  <script src="app.js"></script>
+
+  <!-- Checkout logic -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const tableBody    = document.getElementById("checkoutTableBody");
+      const subtotalEl   = document.getElementById("coSubtotal");
+      const taxEl        = document.getElementById("coTax");
+      const shippingEl   = document.getElementById("coShipping");
+      const totalEl      = document.getElementById("coGrandTotal");
+      const checkoutForm = document.getElementById("checkoutForm");
+
+      const TAX_RATE      = 0.08;
+      const SHIPPING_FLAT = 5.0;
+
+      function renderSummary() {
+        const cartObj = loadCart();
+        const entries = Object.entries(cartObj || {});
+        tableBody.innerHTML = "";
+
+        if (!entries.length) {
+          tableBody.innerHTML = `
+            <tr>
+              <td colspan="3" class="text-center text-muted">
+                Your cart is empty. <a href="index.html">Go back to the shop.</a>
+              </td>
+            </tr>
+          `;
+          subtotalEl.textContent = "$0.00";
+          taxEl.textContent      = "$0.00";
+          shippingEl.textContent = "$0.00";
+          totalEl.textContent    = "$0.00";
+          updateCartUI();
+          return;
+        }
+
+        let subtotal = 0;
+
+        entries.forEach(([id, item]) => {
+          const lineSubtotal = item.qty * item.price;
+          subtotal += lineSubtotal;
+
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${item.name}</td>
+            <td class="text-end">${item.qty}</td>
+            <td class="text-end">$${lineSubtotal.toFixed(2)}</td>
+          `;
+          tableBody.appendChild(tr);
+        });
+
+        const tax        = subtotal * TAX_RATE;
+        const shipping   = subtotal > 0 ? SHIPPING_FLAT : 0;
+        const grandTotal = subtotal + tax + shipping;
+
+        subtotalEl.textContent = "$" + subtotal.toFixed(2);
+        taxEl.textContent      = "$" + tax.toFixed(2);
+        shippingEl.textContent = "$" + shipping.toFixed(2);
+        totalEl.textContent    = "$" + grandTotal.toFixed(2);
+
+        updateCartUI();
+      }
+
+      checkoutForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        const cartObj = loadCart();
+        const entries = Object.entries(cartObj || {});
+
+        if (!entries.length) {
+          showCartToast("Your cart is empty.");
+          return;
+        }
+
+        // Basic extra validation (HTML required already helps)
+        const name  = document.getElementById("fullName").value.trim();
+        const email = document.getElementById("email").value.trim();
+
+        if (!name || !email) {
+          showCartToast("Please fill out your name and email.");
+          return;
+        }
+
+        // === Simulate checkout: update inventory, clear cart ===
+        entries.forEach(([id, item]) => {
+          if (INVENTORY[id] !== undefined) {
+            INVENTORY[id] = Math.max(0, INVENTORY[id] - item.qty);
+          }
+        });
+
+        saveInventory();
+
+        cart = {};
+        saveCart();
+        updateCartUI();
+
+        showCartToast("Thank you! Your (simulated) order has been placed.");
+
+        // Save order summary to display on confirmation page
+        localStorage.setItem("lastOrder", JSON.stringify({
+          items:    entries,
+          subtotal: subtotalEl.textContent,
+          tax:      taxEl.textContent,
+          shipping: shippingEl.textContent,
+          total:    totalEl.textContent
+        }));
+
+        // Redirect to confirmation page
+        setTimeout(() => {
+          window.location.href = "order-confirmation.html";
+        }, 500);
+      });
+
+      // Render order summary when page loads
+      renderSummary();
+    });
+
+    // Dark mode support
+    (function () {
+      const prefersDark = window.matchMedia &&
+        window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.setAttribute(
+        'data-bs-theme',
+        prefersDark ? 'dark' : 'light'
+      );
+    })();
+  </script>
+
+  <!-- Cart Toast -->
+  <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1080;">
+    <div id="cartToast" class="toast align-items-center text-bg-success border-0"
+         role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body">
+          Item added to cart.
+        </div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
