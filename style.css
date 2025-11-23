@@ -35,8 +35,15 @@ body .carousel-index img {
   size: cover;
 }
 
+
+
 @media (min-width: 990px) {
 .navbar-brand {
   margin-left: 10%;
 }
+}
+
+body img {
+  position: center;
+  size: cover;
 }

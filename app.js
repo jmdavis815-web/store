@@ -230,3 +230,15 @@ document.addEventListener("DOMContentLoaded", () => {
   // Initial UI sync
   updateCartUI();
 });
+
+// ADMIN: Add stock to an item
+function addStock(productId, amount) {
+  if (INVENTORY[productId] !== undefined) {
+    INVENTORY[productId] += amount;
+    saveInventory();
+    console.log(`Added ${amount} to ${productId}. New total: ${INVENTORY[productId]}`);
+  } else {
+    console.error("Product not found:", productId);
+  }
+}
+

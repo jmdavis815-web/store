@@ -66,47 +66,62 @@
   </div>
 
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      // Load latest order from checkout
-      const raw = localStorage.getItem("lastOrder");
-      const order = raw ? JSON.parse(raw) : null;
+  document.addEventListener("DOMContentLoaded", () => {
+    // Try to read the last order from localStorage
+    const raw = localStorage.getItem("lastOrder");
+    let order = null;
 
-      // If no order saved, redirect
-      if (!order || !order.items) {
-        window.location.href = "index.html";
-        return;
-      }
+    try {
+      order = raw ? JSON.parse(raw) : null;
+    } catch (e) {
+      order = null;
+    }
 
-      // Generate order number + date
-      document.getElementById("orderNumber").textContent =
-        "RW-" + Math.floor(Math.random() * 999999).toString().padStart(6, "0");
+    // If no order found, show a friendly message instead of "blank"
+    if (!order || !order.items) {
+      const cardBody = document.querySelector(".card-body");
+      cardBody.innerHTML = `
+        <h4 class="mb-3">No Recent Order Found</h4>
+        <p class="mb-3">
+          We couldn’t find a recent order to display. This usually happens if you visit this page directly
+          without going through checkout.
+        </p>
+        <a href="index.html" class="btn btn-primary">Return to Store</a>
+      `;
+      return;
+    }
 
-      document.getElementById("orderDate").textContent =
-        new Date().toLocaleString();
+    // Generate order number + date
+    document.getElementById("orderNumber").textContent =
+      "RW-" + Math.floor(Math.random() * 999999).toString().padStart(6, "0");
 
-      // Fill totals
-      document.getElementById("sumSubtotal").textContent = order.subtotal;
-      document.getElementById("sumTax").textContent      = order.tax;
-      document.getElementById("sumShipping").textContent = order.shipping;
-      document.getElementById("sumTotal").textContent    = order.total;
+    document.getElementById("orderDate").textContent =
+      new Date().toLocaleString();
 
-      // Fill purchased items
-      const list = document.getElementById("orderItems");
-      list.innerHTML = "";
+    // Fill totals (we stored them as strings like "$24.99")
+    document.getElementById("sumSubtotal").textContent = order.subtotal;
+    document.getElementById("sumTax").textContent      = order.tax;
+    document.getElementById("sumShipping").textContent = order.shipping;
+    document.getElementById("sumTotal").textContent    = order.total;
 
-      order.items.forEach(([id, item]) => {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-          <td>${item.name}</td>
-          <td class="text-end">${item.qty}</td>
-          <td class="text-end">$${(item.qty * item.price).toFixed(2)}</td>
-        `;
-        list.appendChild(row);
-      });
+    // Fill purchased items
+    const list = document.getElementById("orderItems");
+    list.innerHTML = "";
 
-      // Clear the temporary order after showing it
-      localStorage.removeItem("lastOrder");
+    order.items.forEach(([id, item]) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${item.name}</td>
+        <td class="text-end">${item.qty}</td>
+        <td class="text-end">$${(item.qty * item.price).toFixed(2)}</td>
+      `;
+      list.appendChild(row);
     });
-  </script>
+
+    // Clear the temporary order after showing it
+    localStorage.removeItem("lastOrder");
+  });
+</script>
+
 </body>
 </html>
