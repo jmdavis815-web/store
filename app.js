@@ -159,21 +159,39 @@ function updateCartUI() {
   const cartBadge = document.getElementById("cartBadge");
   const priceTotal = document.getElementById("priceTotal");
 
-  if (priceTotal) priceTotal.style.color = "green";
+  if (priceTotal) {
+    priceTotal.style.color = "green";
+  }
+
+  // 🔹 First, reset all known product qty buttons to 0
+  Object.keys(PRODUCT_DATA).forEach((id) => {
+    const qtyResetEl = document.getElementById(`qty-${id}`);
+    if (qtyResetEl) {
+      qtyResetEl.textContent = "0";
+    }
+  });
 
   let totalQty = 0;
   let totalPrice = 0;
 
+  // 🔹 Then, apply real quantities for items that are actually in the cart
   Object.entries(cart).forEach(([id, item]) => {
     totalQty += item.qty;
     totalPrice += item.qty * item.price;
 
     const qtyEl = document.getElementById(`qty-${id}`);
-    if (qtyEl) qtyEl.textContent = item.qty;
+    if (qtyEl) {
+      qtyEl.textContent = item.qty;
+    }
   });
 
-  if (cartBadge) cartBadge.textContent = totalQty > 0 ? totalQty : "";
-  if (priceTotal) priceTotal.textContent = totalPrice > 0 ? `$${totalPrice.toFixed(2)}` : "";
+  if (cartBadge) {
+    cartBadge.textContent = totalQty > 0 ? totalQty : "";
+  }
+
+  if (priceTotal) {
+    priceTotal.textContent = totalPrice > 0 ? `$${totalPrice.toFixed(2)}` : "";
+  }
 }
 
 // =======================
