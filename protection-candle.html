@@ -27,13 +27,14 @@
   <!-- ===================== -->
   <!--     NAVBAR / HEADER   -->
   <!-- ===================== -->
-  <nav class="navbar navbar-expand-lg bg-body-tertiary sticky-top mb-3 shadow-sm">
+  <nav class="navbar navbar-expand bg-body-tertiary sticky-top mb-3 shadow-sm">
     <div class="container">
       <a class="navbar-brand fw-bold" href="index.html">
         🌙 Magic Moon Shop
       </a>
 
       <button
+        title="Menu"
         class="navbar-toggler"
         type="button"
         data-bs-toggle="offcanvas"
@@ -68,7 +69,7 @@
 
           <!-- Cart icon / badge -->
           <div class="d-flex">
-            <a href="cart.html" type="button"><i class="cart bi bi-cart4 position-relative"></i><span id="cartBadge" class="top-0 start-100 translate-middle badge rounded-pill bg-danger"></span>
+            <a href="cart.html" type="button" title="cart"><i class="cart bi bi-cart4 position-relative"></i><span id="cartBadge" class="top-0 start-100 translate-middle badge rounded-pill bg-danger"></span>
                 <!-- Filled by JS -->
               </span>
             </a>
@@ -160,7 +161,7 @@
               data-product-name="Protection Candle"
               data-product-price="12.99"
             >
-              <button type="button" class="btn btn-outline-danger btn-cart-minus">
+              <button title="Remove Item" type="button" class="btn btn-outline-danger btn-cart-minus">
                 <i class="bi bi-cart-dash"></i>
               </button>
               <button
@@ -171,7 +172,7 @@
               >
                 0
               </button>
-              <button type="button" class="btn btn-outline-success btn-cart-plus">
+              <button title="Add Item" type="button" class="btn btn-outline-success btn-cart-plus">
                 <i class="bi bi-cart-plus"></i>
               </button>
             </div>
