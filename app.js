@@ -30,6 +30,27 @@ const analytics = getAnalytics(app);
 const db = getFirestore(app);
 
 // =======================
+//  SITE VIEW COUNTER
+// =======================
+async function incrementPageViews() {
+  try {
+    const statsRef = doc(db, "store", "stats");
+    const snap = await getDoc(statsRef);
+
+    if (snap.exists()) {
+      const data = snap.data() || {};
+      const current = typeof data.pageViews === "number" ? data.pageViews : 0;
+      await setDoc(statsRef, { pageViews: current + 1 }, { merge: true });
+    } else {
+      // First time: create stats doc with pageViews = 1
+      await setDoc(statsRef, { pageViews: 1 });
+    }
+  } catch (err) {
+    console.error("Error incrementing page views:", err);
+  }
+}
+
+// =======================
 //  PRODUCT CATALOG
 // =======================
 const PRODUCT_DATA = {
@@ -115,6 +136,41 @@ function updateStockDisplays() {
       group.style.opacity = amount <= 0 ? "0.5" : "1";
     }
   });
+}
+
+// =======================
+//  VIEW TRACKING
+// =======================
+
+async function logPageView() {
+  try {
+    // Don't count admin pages as "views"
+    if (location.pathname.includes("admin")) return;
+
+    // 1) Update total view counter
+    const statsRef = doc(db, "store", "stats");
+    const statsSnap = await getDoc(statsRef);
+
+    if (statsSnap.exists()) {
+      const data = statsSnap.data() || {};
+      const current = typeof data.pageViews === "number" ? data.pageViews : 0;
+      await setDoc(
+        statsRef,
+        { pageViews: current + 1 },
+        { merge: true }
+      );
+    } else {
+      await setDoc(statsRef, { pageViews: 1 }, { merge: true });
+    }
+
+    // 2) Log individual view event (for graphs)
+    await addDoc(collection(db, "viewEvents"), {
+      path: window.location.pathname,
+      createdAt: serverTimestamp()
+    });
+  } catch (err) {
+    console.error("Error logging page view:", err);
+  }
 }
 
 // =======================
@@ -229,6 +285,9 @@ function adjustCart(productId, delta, name, price) {
 // =======================
 document.addEventListener("DOMContentLoaded", () => {
   document.body.classList.add("page-loaded");
+
+  // 🔹 Log a view for any non-admin page
+  logPageView();
 
   const productGroups = document.querySelectorAll(".btn-group[data-product-id]");
 

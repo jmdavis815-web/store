@@ -39,6 +39,39 @@
   <div class="container">
     <h1 class="mb-4">🌙 Magic Moon — Admin Dashboard</h1>
 
+        <!-- ========================= -->
+    <!--       SITE STATISTICS     -->
+    <!-- ========================= -->
+    <div class="row mb-4">
+      <!-- Total Views Card -->
+      <div class="col-md-4 mb-3">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title mb-1">Total Site Views</h5>
+            <p class="text-muted small mb-1">
+              All public page loads logged in Firestore.
+            </p>
+            <p id="totalViews" class="fs-3 fw-bold mb-0">0</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Views Chart -->
+      <div class="col-md-8 mb-3">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title mb-3">Views (Last 7 Days)</h5>
+            <canvas id="viewsChart" height="120"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================= -->
+    <!--   INVENTORY MANAGEMENT    -->
+    <!-- ========================= -->
+
+
     <!-- ========================= -->
     <!--   INVENTORY MANAGEMENT    -->
     <!-- ========================= -->
@@ -109,6 +142,19 @@
 
     // Use the default Firebase app initialized in app.js
     const db = getFirestore();
+
+        /*****************************
+     *   SITE VIEW COUNTER       *
+     *****************************/
+    const viewCountEl = document.getElementById("viewCount");
+
+    onSnapshot(doc(db, "store", "stats"), (snap) => {
+      const data = snap.data() || {};
+      const views = typeof data.pageViews === "number" ? data.pageViews : 0;
+      if (viewCountEl) {
+        viewCountEl.textContent = views.toLocaleString();
+      }
+    });
 
     /*****************************
      *     REAL-TIME INVENTORY   *
