@@ -1,4 +1,26 @@
 <!DOCTYPE html>
+<script type="module">
+  import { getAuth, onAuthStateChanged, signOut } 
+    from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+  import { app } from "./app.js";
+
+  const auth = getAuth(app);
+
+  // Ensure only logged-in users can view this page
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      window.location.href = "admin-login.html";
+    }
+  });
+
+  // Optional: Add logout button functionality
+  window.adminLogout = function () {
+    signOut(auth).then(() => {
+      window.location.href = "admin-login.html";
+    });
+  }
+</script>
+
 <html lang="en" data-bs-theme="light">
 <head>
   <meta charset="UTF-8" />
@@ -13,6 +35,7 @@
 </head>
 
 <body class="p-4">
+
   <div class="container">
     <h1 class="mb-4">🌙 Magic Moon — Archived Orders</h1>
 
