@@ -320,13 +320,6 @@ async function logOrder(orderData) {
   }
 }
 
-// Helper to clear the cart (so checkout page can use it safely)
-function clearCart() {
-  cart = {};
-  saveCart();
-  updateCartUI();
-}
-
 // =======================
 //  Expose functions globally (for inline scripts in other pages)
 // =======================
@@ -341,6 +334,7 @@ window.updateCartUI = updateCartUI;
 window.adjustCart = adjustCart;
 window.showCartToast = showCartToast;
 window.updateStockDisplays = updateStockDisplays;
+window.logOrder = logOrder;
 
 function clearCart() {
   cart = {};

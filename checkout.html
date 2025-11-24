@@ -239,86 +239,84 @@
 
       // Make the handler async so we can await logOrder(...)
       checkoutForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
+  e.preventDefault();
 
-        const cartObj = loadCart();
-        const entries = Object.entries(cartObj || {});
+  const cartObj = loadCart();
+  const entries = Object.entries(cartObj || {});
 
-        if (!entries.length) {
-          showCartToast("Your cart is empty.");
-          return;
-        }
+  if (!entries.length) {
+    showCartToast("Your cart is empty.");
+    return;
+  }
 
-        // Basic extra validation (HTML required already helps)
-        const name  = document.getElementById("fullName").value.trim();
-        const email = document.getElementById("email").value.trim();
+  const name  = document.getElementById("fullName").value.trim();
+  const email = document.getElementById("email").value.trim();
 
-        if (!name || !email) {
-          showCartToast("Please fill out your name and email.");
-          return;
-        }
+  if (!name || !email) {
+    showCartToast("Please fill out your name and email.");
+    return;
+  }
 
-        // Build an order record for Firestore
-        const orderRecord = {
-          customer: {
-            name,
-            email,
-            address: document.getElementById("address").value.trim(),
-            city:    document.getElementById("city").value.trim(),
-            state:   document.getElementById("state").value.trim(),
-            zip:     document.getElementById("zip").value.trim(),
-          },
-          items: entries.map(([id, item]) => ({
-            productId: id,
-            name:      item.name,
-            price:     item.price,
-            qty:       item.qty,
-            subtotal:  item.price * item.qty
-          })),
-          totals: {
-            subtotal: subtotalEl.textContent.replace("$", ""),
-            tax:      taxEl.textContent.replace("$", ""),
-            shipping: shippingEl.textContent.replace("$", ""),
-            total:    totalEl.textContent.replace("$", "")
-          }
-        };
+  // === Simulate checkout: update inventory ===
+  entries.forEach(([id, item]) => {
+    if (INVENTORY[id] !== undefined) {
+      INVENTORY[id] = Math.max(0, INVENTORY[id] - item.qty);
+    }
+  });
 
-        // 1) Save order in Firestore (so it shows in sales history)
-        try {
-          await logOrder(orderRecord);
-        } catch (err) {
-          console.error("Failed to log order:", err);
-          showCartToast("Could not save order, please try again.");
-          return;
-        }
+  await saveInventory();
 
-        // 2) Update inventory in Firestore
-        entries.forEach(([id, item]) => {
-          if (INVENTORY[id] !== undefined) {
-            INVENTORY[id] = Math.max(0, INVENTORY[id] - item.qty);
-          }
-        });
-        saveInventory();
+  // Build order data for Firestore
+  const orderData = {
+    customer: {
+      name,
+      email,
+      address: document.getElementById("address").value.trim(),
+      city:    document.getElementById("city").value.trim(),
+      state:   document.getElementById("state").value.trim(),
+      zip:     document.getElementById("zip").value.trim()
+    },
+    items: entries.map(([id, item]) => ({
+      id,
+      name:  item.name,
+      price: item.price,
+      qty:   item.qty,
+      subtotal: item.qty * item.price
+    })),
+    totals: {
+      subtotal: subtotalEl.textContent,
+      tax:      taxEl.textContent,
+      shipping: shippingEl.textContent,
+      total:    totalEl.textContent
+    }
+  };
 
-        // 3) Clear cart (via helper from app.js)
-        clearCart();
+  // 🔹 Log order to Firestore
+  try {
+    await logOrder(orderData);   // now available via window.logOrder
+  } catch (err) {
+    console.error("Failed to log order:", err);
+  }
 
-        showCartToast("Thank you! Your (simulated) order has been placed.");
+  // Clear cart (helper from app.js)
+  clearCart();
 
-        // Save order summary to display on confirmation page
-        localStorage.setItem("lastOrder", JSON.stringify({
-          items:    entries,
-          subtotal: subtotalEl.textContent,
-          tax:      taxEl.textContent,
-          shipping: shippingEl.textContent,
-          total:    totalEl.textContent
-        }));
+  showCartToast("Thank you! Your (simulated) order has been placed.");
 
-        // Redirect to confirmation page
-        setTimeout(() => {
-          window.location.href = "order-confirmation.html";
-        }, 500);
-      });
+  // Save order summary to display on confirmation page
+  localStorage.setItem("lastOrder", JSON.stringify({
+    items:    entries,
+    subtotal: subtotalEl.textContent,
+    tax:      taxEl.textContent,
+    shipping: shippingEl.textContent,
+    total:    totalEl.textContent
+  }));
+
+  // Redirect to confirmation page
+  setTimeout(() => {
+    window.location.href = "order-confirmation.html";
+  }, 500);
+});
 
       // Render order summary when page loads
       renderSummary();
