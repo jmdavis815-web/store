@@ -8,6 +8,7 @@ body.page-loaded {
   opacity: 1;
 }
 
+/* Dark theme */
 @media (prefers-color-scheme: dark) {
   html {
     color-scheme: dark;
@@ -20,6 +21,12 @@ body.page-loaded {
 
 .cart {
   font-size: 24px;
+  margin-right: 2px;
+  margin-left: 10px;
+}
+
+.badge {
+  margin-right: -10px;
 }
 
 i {
