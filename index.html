@@ -12,45 +12,20 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
 </head>
 <body>
+
     <!-- NavBar -->
     <nav class="navbar navbar-expand-lg bg-body-tertiary sticky-top mb-3">
-  <div class="container-fluid">
-    <a href="cart.html" type="button"><i class="cart bi bi-cart4 position-relative"></i><span id="cartBadge" class="top-0 start-100 translate-middle badge rounded-pill bg-danger"></span>
-    <a class="navbar-brand" href="index.html">Offcanvas navbar</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
-      <div class="offcanvas-header">
-        <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Offcanvas</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-      </div>
-      <div class="offcanvas-body">
-        <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
-          <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="#">Home</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">Link</a>
-          </li>
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              Dropdown
-            </a>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="#">Action</a></li>
-              <li><a class="dropdown-item" href="#">Another action</a></li>
-              <li>
-                <hr class="dropdown-divider">
-              </li>
-              <li><a class="dropdown-item" href="#">Something else here</a></li>
-            </ul>
-          </li>
-        </ul>
-        <form class="d-flex mt-3" role="search" action="search.html" method="GET">
+  <div class="container">
+    
+    <a class="navbar-brand" href="index.html">Store Name</a>
+
+    <form class="searchBar d-flex mt-3" role="search" action="search.html" method="GET">
             <input id="searchInput" name="q" class="form-control me-2" type="search" placeholder="Search" aria-label="Search" />
-            <button class="btn btn-outline-success" type="submit">Search</button>
+            <button id="searchBtn" title="Search" class="searchBtn btn btn-outline-success" type="submit"><i class="bi bi-search"></i></button>
         </form>
+
+    <a title="Cart" href="cart.html" type="button"><i class="cart bi bi-cart4 position-relative"></i><span id="cartBadge" class="top-0 start-100 translate-middle badge rounded-pill bg-danger"></span></a>
+
       </div>
     </div>
     </div>
@@ -58,64 +33,74 @@
 
     <!-- Main Content -->
     <div class="container">
-        <div class="row">
-            
-            <!-- Carousel -->
-            <div id="carouselExampleSlidesOnly" class="carousel-index slide col-12 col-md-6 mb-3" data-bs-ride="carousel">
-                <div class="carousel-inner">
-                    <!-- Item -->
-                    <div class="carousel-item active">
-                        <div class="card">
-                            <div class="row g-0">
-                                <div class="col-12">
-                <div class="card" max-width="540px">
-                    <div class="row g-0">
-                        <div class="col-12">
-                            <a href="protection-candle.html"><img src="protection-candle-img.png" class="w-100 rounded-start" alt="Item Image"></a>
-                        </div>
+  <div class="row">
     
-                        </div>
-                    </div>
+    <!-- Left column: Carousel -->
+    <div class="col-12 col-md-4 mb-3">
+      <div id="carouselExampleSlidesOnly" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-inner">
+          
+          <div class="carousel-item active">
+            <div class="card">
+              <div class="row g-0">
+                <div class="col-12">
+                  <a href="protection-candle.html">
+                    <img src="protection-candle-img.png" class="w-100 rounded-start" alt="Protection Candle">
+                  </a>
                 </div>
+              </div>
             </div>
-                            </div>
-                        </div>
+          </div>
 
-                    <div class="carousel-item">
-                        <div class="card">
-                            <div class="row g-0">
-                                <div class="col-12">
-                                    <img src="chakra-water.png" class="img-fluid rounded-start" alt="Item Image">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="carousel-item">
-                        <div class="card">
-                            <div class="row g-0">
-                                <div class="col-12">
-                                    <img src="bottle-4.jpg" class="img-fluid rounded-start" alt="Item Image">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
+          <div class="carousel-item">
+            <div class="card">
+              <div class="row g-0">
+                <div class="col-12">
+                  <img src="chakra-water.png" class="w-100 rounded-start" alt="Chakra Water">
                 </div>
+              </div>
             </div>
+          </div>
 
-            <!-- New -->
-            <div class="col-md-6 col-12">
-                <div class="card mb-3" max-width="540px">
-                    <div class="row g-0">
-                        <div class="col-12">
-                            <img src="winter-sale-25.png" class="img-fluid rounded-start" alt="Item Image">
-                        </div>
-                    </div>
+          <div class="carousel-item">
+            <div class="card">
+              <div class="row g-0">
+                <div class="col-12">
+                  <img src="bottle-4.jpg" class="w-100 rounded-start" alt="Bottle">
                 </div>
+              </div>
             </div>
+          </div>
 
-            <div class="col-12 col-sm-6 col-lg-4 mb-4">
+        </div>
+      </div>
+    </div>
+
+    <!-- Right column: Winter sale banner -->
+    <div class="col-12 col-md-4 mb-3">
+      <div class="card">
+        <div class="row g-0">
+          <div class="col-12">
+            <img src="winter-sale-25.png" class="img-fluid rounded-start" alt="Winter Sale 25%">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-4 mb-3">
+      <div class="card">
+        <div class="row g-0">
+          <div class="col-12">
+            <a href="art.html"><img src="art-gallery.png" class="img-fluid rounded-start" alt="Art Gallery"></a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Now your product cards follow as separate columns -->
+
+
+            <div class="col-12 col-sm-6 col-lg-4 mb-3">
                 <div class="card h-100 shadow-sm">
                     <!-- Product image -->
                     <a href="chakra-water.html">
@@ -150,7 +135,7 @@
             </div>
 
 
-            <div class="col-12 col-sm-6 col-lg-4 mb-4">
+            <div class="col-12 col-sm-6 col-lg-4 mb-3">
                 <div class="card h-100 shadow-sm">
                     <!-- Product image -->
                     <a href="protection-candle.html">
@@ -200,7 +185,7 @@
 </script>
 
 <!-- Cart Toast -->
-<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1080;">
+<div class="toast position-fixed bottom-0 end-0 p-3">
   <div id="cartToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
     <div class="d-flex">
       <div class="toast-body">

@@ -22,62 +22,29 @@
     rel="stylesheet"
     href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
   >
+
 </head>
 <body>
+
   <!-- ===================== -->
   <!--     NAVBAR / HEADER   -->
   <!-- ===================== -->
-  <nav class="navbar navbar-expand bg-body-tertiary sticky-top mb-3 shadow-sm">
-    <div class="container">
-      <a class="navbar-brand fw-bold" href="index.html">
-        🌙 Magic Moon Shop
-      </a>
+    <nav class="navbar navbar-expand-lg bg-body-tertiary sticky-top mb-3">
+  <div class="container">
+    
+    <a class="navbar-brand" href="index.html">Store Name</a>
 
-      <button
-        title="Menu"
-        class="navbar-toggler"
-        type="button"
-        data-bs-toggle="offcanvas"
-        data-bs-target="#offcanvasNavbar"
-        aria-controls="offcanvasNavbar"
-      >
-        <span class="navbar-toggler-icon"></span>
-      </button>
+    <form class="searchBar d-flex mt-3" role="search" action="search.html" method="GET">
+            <input id="searchInput" name="q" class="form-control me-2" type="search" placeholder="Search" aria-label="Search" />
+            <button id="searchBtn" title="Search" class="searchBtn btn btn-outline-success" type="submit"><i class="bi bi-search"></i></button>
+        </form>
 
-      <div
-        class="offcanvas offcanvas-end"
-        tabindex="-1"
-        id="offcanvasNavbar"
-        aria-labelledby="offcanvasNavbarLabel"
-      >
-        <div class="offcanvas-header">
-          <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Magic Moon Shop</h5>
-          <button
-            type="button"
-            class="btn-close"
-            data-bs-dismiss="offcanvas"
-            aria-label="Close"
-          ></button>
-        </div>
-        <div class="offcanvas-body">
-          <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
-            <li class="nav-item">
-              <a class="nav-link" href="index.html">Home</a>
-            </li>
-            <!-- Add more links if you want -->
-          </ul>
+    <a title="Cart" href="cart.html" type="button"><i class="cart bi bi-cart4 position-relative"></i><span id="cartBadge" class="top-0 start-100 translate-middle badge rounded-pill bg-danger"></span></a>
 
-          <!-- Cart icon / badge -->
-          <div class="d-flex">
-            <a href="cart.html" type="button" title="cart"><i class="cart bi bi-cart4 position-relative"></i><span id="cartBadge" class="top-0 start-100 translate-middle badge rounded-pill bg-danger"></span>
-                <!-- Filled by JS -->
-              </span>
-            </a>
-          </div>
-        </div>
       </div>
     </div>
-  </nav>
+    </div>
+    </nav>
 
   <!-- ===================== -->
   <!--     MAIN CONTENT      -->
@@ -204,7 +171,7 @@
   <!-- ===================== -->
   <!--    CART TOAST POPUP   -->
   <!-- ===================== -->
-  <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1080;">
+  <div class="toast position-fixed bottom-0 end-0 p-3">
     <div
       id="cartToast"
       class="toast align-items-center text-bg-success border-0"

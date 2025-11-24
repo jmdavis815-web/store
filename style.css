@@ -40,15 +40,15 @@ body img {
   overflow: hidden;
 }
 
-
-
-@media (min-width: 990px) {
-.navbar-brand {
-  margin-left: 10%;
-}
+.toast {
+  z-index: 1080;
 }
 
-body img {
-  position: center;
-  size: cover;
+#searchBtn {
+  border-radius: 0px 10px 10px 0px;
+  margin-left: -7.5px;
+}
+
+#searchInput {
+  border-radius: 10px 0px 0px 10px;
 }
