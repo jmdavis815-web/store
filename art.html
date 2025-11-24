@@ -18,46 +18,23 @@
 </head>
 <body>
 
-  <!-- NAVBAR (aligned with your store style) -->
-  <nav class="navbar navbar-expand-lg bg-body-tertiary sticky-top mb-3">
-    <div class="container">
-      <a class="navbar-brand" href="index.html">Store Name</a>
+  <!-- NavBar -->
+    <nav class="navbar navbar-expand-lg bg-body-tertiary sticky-top mb-3">
+  <div class="container">
+    
+    <a class="navbar-brand" href="index.html">Store Name</a>
 
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-              data-bs-target="#navbarNav" aria-controls="navbarNav"
-              aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <!-- Left nav links -->
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <li class="nav-item">
-            <a class="nav-link" href="index.html">Shop</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="art.html">Art Gallery</a>
-          </li>
-        </ul>
-
-        <!-- Search -->
-        <form class="searchBar d-flex me-3" role="search" action="search.html" method="GET">
-          <input id="searchInput" name="q" class="form-control me-2" type="search" placeholder="Search" aria-label="Search" />
-          <button title="Search" class="btn btn-outline-success" type="submit">
-            <i class="bi bi-search"></i>
-          </button>
+    <form class="searchBar d-flex mt-3" role="search" action="search.html" method="GET">
+            <input id="searchInput" name="q" class="form-control me-2" type="search" placeholder="Search" aria-label="Search" />
+            <button id="searchBtn" title="Search" class="searchBtn btn btn-outline-success" type="submit"><i class="bi bi-search"></i></button>
         </form>
 
-        <!-- Cart -->
-        <a title="Cart" href="cart.html" class="position-relative">
-          <i class="cart bi bi-cart4 fs-4"></i>
-          <span id="cartBadge"
-                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"></span>
-        </a>
+    <a title="Cart" href="cart.html" type="button"><i class="cart bi bi-cart4 position-relative"></i><span id="cartBadge" class="top-0 start-100 translate-middle badge rounded-pill bg-danger"></span></a>
 
       </div>
     </div>
-  </nav>
+    </div>
+    </nav>
 
   <!-- HERO BANNER -->
   <section class="container mb-4">
