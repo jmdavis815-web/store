@@ -58,58 +58,42 @@ const PRODUCT_DATA = {
 //  INVENTORY (Firestore)
 // =======================
 
-// This will hold the live inventory numbers keyed by product ID
 let INVENTORY = {};
 
-// Start with defaults from PRODUCT_DATA so we always have something
+// Load defaults
 for (const [id, product] of Object.entries(PRODUCT_DATA)) {
   if (typeof product.stock === "number") {
     INVENTORY[id] = product.stock;
   }
 }
 
-/**
- * Load inventory from Firestore.
- * If no document exists yet, create it from PRODUCT_DATA.stock.
- */
 async function loadInventoryFromDB() {
   try {
     const invRef = doc(db, "store", "inventory");
     const snap = await getDoc(invRef);
 
     if (snap.exists()) {
-      const data = snap.data() || {};
-      Object.assign(INVENTORY, data);   // merge DB → memory
+      Object.assign(INVENTORY, snap.data());
     } else {
-      await setDoc(invRef, INVENTORY);  // first time, seed DB
+      await setDoc(invRef, INVENTORY);
     }
 
-    updateStockDisplays();              // ✅ show DB values
+    updateStockDisplays();
   } catch (err) {
-    console.error("Error loading inventory from Firestore:", err);
-
-    // ✅ Fallback: still show the PRODUCT_DATA defaults
+    console.error("Error loading inventory:", err);
     updateStockDisplays();
   }
 }
 
-/**
- * Save current INVENTORY into Firestore.
- * This is used by checkout, restock, etc.
- */
 async function saveInventory() {
   try {
     const invRef = doc(db, "store", "inventory");
     await setDoc(invRef, INVENTORY);
   } catch (err) {
-    console.error("Error saving inventory to Firestore:", err);
+    console.error("Error saving inventory:", err);
   }
 }
 
-/**
- * Update stock labels on the page, if present.
- * Looks for elements with IDs: stock-<productId>
- */
 function updateStockDisplays() {
   Object.keys(INVENTORY).forEach((id) => {
     const stockEl = document.getElementById(`stock-${id}`);
@@ -124,28 +108,20 @@ function updateStockDisplays() {
       stockEl.classList.remove("text-danger");
     }
 
-    // Also optionally disable buttons if out of stock
     const group = document.querySelector(`.btn-group[data-product-id="${id}"]`);
     if (group) {
       const plusBtn = group.querySelector(".btn-cart-plus");
-      if (plusBtn) {
-        plusBtn.disabled = amount <= 0;
-      }
-      if (amount <= 0) {
-        group.style.opacity = "0.5";
-      } else {
-        group.style.opacity = "1";
-      }
+      if (plusBtn) plusBtn.disabled = amount <= 0;
+      group.style.opacity = amount <= 0 ? "0.5" : "1";
     }
   });
 }
 
 // =======================
-//  CART CORE (localStorage)
+//  CART CORE
 // =======================
 const STORAGE_KEY = "storeCart";
 
-// Global cart object
 let cart = {};
 try {
   cart = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
@@ -153,17 +129,21 @@ try {
   cart = {};
 }
 
-// Save cart to localStorage
+// 🔥 CLEAN UP zero items from previous versions
+for (const [id, item] of Object.entries(cart)) {
+  if (!item || typeof item.qty !== "number" || item.qty <= 0) {
+    delete cart[id];
+  }
+}
+
 function saveCart() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
 }
 
-// Convenience getter
 function loadCart() {
   return cart;
 }
 
-// Toast popup for add-to-cart etc.
 function showCartToast(message) {
   const toastEl = document.getElementById("cartToast");
   if (!toastEl || typeof bootstrap === "undefined") return;
@@ -175,14 +155,11 @@ function showCartToast(message) {
   toast.show();
 }
 
-// Update navbar badge + top total + per-product quantities
 function updateCartUI() {
   const cartBadge = document.getElementById("cartBadge");
   const priceTotal = document.getElementById("priceTotal");
 
-  if (priceTotal) {
-    priceTotal.style.color = "green";
-  }
+  if (priceTotal) priceTotal.style.color = "green";
 
   let totalQty = 0;
   let totalPrice = 0;
@@ -192,116 +169,78 @@ function updateCartUI() {
     totalPrice += item.qty * item.price;
 
     const qtyEl = document.getElementById(`qty-${id}`);
-    if (qtyEl) {
-      qtyEl.textContent = item.qty;
-    }
+    if (qtyEl) qtyEl.textContent = item.qty;
   });
 
-  if (cartBadge) {
-    cartBadge.textContent = totalQty > 0 ? totalQty : "";
-  }
-
-  if (priceTotal) {
-    priceTotal.textContent = totalPrice > 0 ? `$${totalPrice.toFixed(2)}` : "";
-  }
+  if (cartBadge) cartBadge.textContent = totalQty > 0 ? totalQty : "";
+  if (priceTotal) priceTotal.textContent = totalPrice > 0 ? `$${totalPrice.toFixed(2)}` : "";
 }
 
 // =======================
-//  adjustCart with Firestore-backed INVENTORY
+//  adjustCart
 // =======================
 function adjustCart(productId, delta, name, price) {
-  // Ensure a cart entry exists
   if (!cart[productId]) {
-    const fallbackProduct = PRODUCT_DATA[productId] || {};
+    const fallback = PRODUCT_DATA[productId] || {};
     cart[productId] = {
-      name: name || fallbackProduct.name || "Item",
-      price: parseFloat(
-        price ?? fallbackProduct.price ?? 0
-      ),
+      name: name || fallback.name || "Item",
+      price: parseFloat(price ?? fallback.price ?? 0),
       qty: 0
     };
   }
 
-  const limit = INVENTORY[productId]; // from Firestore (or default)
+  const limit = INVENTORY[productId];
   const currentQty = cart[productId].qty;
   const nextQty = currentQty + delta;
 
-  // If we're trying to ADD and that would exceed stock, block it
   if (delta > 0 && typeof limit === "number" && nextQty > limit) {
     showCartToast(`Only ${limit} of ${cart[productId].name} in stock.`);
-    return false; // nothing changed
+    return false;
   }
 
-  // Apply the change, but don't go below 0
   cart[productId].qty = Math.max(0, nextQty);
+  if (cart[productId].qty === 0) delete cart[productId];
 
   saveCart();
   updateCartUI();
-
-  return true; // successfully changed
+  return true;
 }
 
 // =======================
-//  DOM WIRING FOR PRODUCT PAGES
+//  DOM WIRING
 // =======================
-
 document.addEventListener("DOMContentLoaded", () => {
-  // Fade-in effect
   document.body.classList.add("page-loaded");
 
-  // Wire up all product controls on this page
   const productGroups = document.querySelectorAll(".btn-group[data-product-id]");
 
   productGroups.forEach((group) => {
     const id = group.dataset.productId;
     const product = PRODUCT_DATA[id] || {};
 
-    const name =
-      group.dataset.productName ||
-      product.name ||
-      "Item";
-
-    const price = parseFloat(
-      group.dataset.productPrice ||
-      product.price ||
-      0
-    );
-
-    // Ensure cart entry exists
-    if (!cart[id]) {
-      cart[id] = { name, price, qty: 0 };
-    }
+    const name = group.dataset.productName || product.name || "Item";
+    const price = parseFloat(group.dataset.productPrice || product.price || 0);
 
     const plusBtn = group.querySelector(".btn-cart-plus");
     const minusBtn = group.querySelector(".btn-cart-minus");
     const qtyBtn = document.getElementById(`qty-${id}`);
 
-    if (qtyBtn) {
-      qtyBtn.textContent = cart[id].qty;
-    }
+    const existingItem = cart[id];
+    if (qtyBtn) qtyBtn.textContent = existingItem ? existingItem.qty : 0;
 
     if (plusBtn) {
       plusBtn.addEventListener("click", () => {
         const changed = adjustCart(id, +1, name, price);
-        if (changed) {
-          const item = cart[id];
-          showCartToast(`${item.name} added to cart.`);
-        }
-        // If not changed, adjustCart already showed the "Only X in stock" toast
+        if (changed) showCartToast(`${name} added to cart.`);
       });
     }
 
     if (minusBtn) {
-      minusBtn.addEventListener("click", () => {
-        adjustCart(id, -1);
-      });
+      minusBtn.addEventListener("click", () => adjustCart(id, -1));
     }
   });
 
-  // Load inventory from Firestore and update stock text / buttons
   loadInventoryFromDB();
-
-  // Initial cart UI sync
   updateCartUI();
 });
 
@@ -321,10 +260,8 @@ async function logOrder(orderData) {
 }
 
 // =======================
-//  Expose functions globally (for inline scripts in other pages)
+//  GLOBAL EXPORTS
 // =======================
-
-// So checkout.html, cart.html, restock.html, etc. can call these
 window.PRODUCT_DATA = PRODUCT_DATA;
 window.INVENTORY = INVENTORY;
 window.saveInventory = saveInventory;
@@ -341,6 +278,4 @@ function clearCart() {
   saveCart();
   updateCartUI();
 }
-
-// Expose functions globally (for inline scripts)
 window.clearCart = clearCart;
