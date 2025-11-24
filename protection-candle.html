@@ -13,13 +13,10 @@
 </head>
 <body>
     <!-- NavBar -->
-    <nav class="navbar bg-body-tertiary sticky-top mb-5">
+    <nav class="navbar navbar-expand-lg bg-body-tertiary sticky-top mb-3">
   <div class="container-fluid">
     <a href="cart.html" type="button"><i class="cart bi bi-cart4 position-relative m-2"></i><span id="cartBadge" class="top-0 start-100 translate-middle badge rounded-pill bg-danger"></span>
-  
-    <span id="priceTotal">
-
-    </span></a>
+    <span id="priceTotal"></span></a>
     <a class="navbar-brand" href="index.html">Offcanvas navbar</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
@@ -51,9 +48,9 @@
             </ul>
           </li>
         </ul>
-        <form class="d-flex mt-3" role="search">
-          <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"/>
-          <button class="btn btn-outline-success" type="submit">Search</button>
+        <form class="d-flex mt-3" role="search" action="search.html" method="GET">
+            <input id="searchInput" name="q" class="form-control me-2" type="search" placeholder="Search" aria-label="Search" />
+            <button class="btn btn-outline-success" type="submit">Search</button>
         </form>
       </div>
     </div>

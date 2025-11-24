@@ -42,6 +42,10 @@
     <h3>Sales History (Real-Time)</h3>
     <p class="text-muted">New orders appear instantly.</p>
 
+    <button id="archiveBtn" class="btn btn-outline-warning btn-sm mb-3">
+        Archive orders older than 30 days
+    </button>
+
     <div class="table-responsive">
       <table class="table table-bordered align-middle">
         <thead class="table-light">
@@ -56,8 +60,11 @@
       </table>
     </div>
 
+  <a href="admin.archive.html" class="btn btn-outline-secondary mt-4 me-2">
+    View Archived Orders
+    </a>
     <a href="index.html" class="btn btn-secondary mt-4">Back to Store</a>
-  </div>
+
 
   <!-- ADMIN PAGE SCRIPT -->
   <script type="module">
@@ -67,10 +74,15 @@
       setDoc,
       onSnapshot,
       collection,
-      updateDoc
+      updateDoc,
+      query,
+      where,
+      getDocs,
+      deleteDoc,
+      Timestamp
     } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-    // Use the default Firebase app that app.js already initialized
+    // Use the default Firebase app initialized in app.js
     const db = getFirestore();
 
     /*****************************
@@ -81,8 +93,7 @@
     // Live listener for inventory document
     onSnapshot(doc(db, "store", "inventory"), (snap) => {
       const inv = snap.data() || {};
-      // keep global INVENTORY in sync
-      window.INVENTORY = inv;
+      window.INVENTORY = inv; // keep global in sync
 
       inventoryTable.innerHTML = "";
 
@@ -107,17 +118,15 @@
       });
     });
 
-    // Save button handler for inventory adjustments
+    // Save button handler (add / remove stock)
     inventoryTable.addEventListener("click", async (e) => {
       const btn = e.target.closest("button[data-id]");
       if (!btn) return;
 
       const id = btn.dataset.id;
-      const adjustInput = document.getElementById(`adj-${id}`);
-      const amount = parseInt(adjustInput.value, 10) || 0;
+      const amount = parseInt(document.getElementById(`adj-${id}`).value) || 0;
 
-      const current = window.INVENTORY[id] || 0;
-      const newStock = current + amount;
+      const newStock = (window.INVENTORY[id] || 0) + amount;
 
       await updateDoc(doc(db, "store", "inventory"), {
         [id]: newStock
@@ -136,9 +145,13 @@
 
       snapshot.forEach((docSnap) => {
         const data = docSnap.data();
-        const row = document.createElement("tr");
 
-        // Support items stored as array OR object
+        // Date
+        const created = data.createdAt?.toDate
+          ? data.createdAt.toDate()
+          : new Date();
+
+        // Items: handle array or object form
         const itemsArray = Array.isArray(data.items)
           ? data.items
           : Object.entries(data.items || {}).map(([id, item]) => ({
@@ -146,27 +159,71 @@
               ...item
             }));
 
-        const itemsHTML = itemsArray
-          .map(item => `${item.name} (x${item.qty})`)
+        const itemsList = itemsArray
+          .map(i => `${i.name} (x${i.qty})`)
           .join("<br>");
 
-        const total = data.totals?.total ?? "N/A";
+        const totalDisplay = data.totals?.total || "$0.00";
 
-        // Firestore timestamp → readable date
-        let dateDisplay = "Unknown";
-        if (data.createdAt?.seconds) {
-          dateDisplay = new Date(data.createdAt.seconds * 1000).toLocaleString();
-        }
-
+        const row = document.createElement("tr");
         row.innerHTML = `
           <td>${docSnap.id}</td>
-          <td>${dateDisplay}</td>
-          <td>${itemsHTML}</td>
-          <td>${total}</td>
+          <td>${created.toLocaleString()}</td>
+          <td>${itemsList}</td>
+          <td>${totalDisplay}</td>
         `;
 
         salesHistory.appendChild(row);
       });
+    });
+
+    /*****************************
+     *   ARCHIVE OLD ORDERS BTN  *
+     *****************************/
+    const archiveBtn = document.getElementById("archiveBtn");
+
+    archiveBtn.addEventListener("click", async () => {
+      const ok = confirm(
+        "Archive orders older than 30 days? They will be moved to 'orders_archive' and removed from this list."
+      );
+      if (!ok) return;
+
+      try {
+        // Cutoff: 30 days ago
+        const cutoffDate = new Date();
+        cutoffDate.setDate(cutoffDate.getDate() - 30);
+
+        const q = query(
+          collection(db, "orders"),
+          where("createdAt", "<", Timestamp.fromDate(cutoffDate))
+        );
+
+        const snap = await getDocs(q);
+
+        if (snap.empty) {
+          alert("No orders older than 30 days to archive.");
+          return;
+        }
+
+        let count = 0;
+
+        for (const docSnap of snap.docs) {
+          const data = docSnap.data();
+
+          // Copy into orders_archive with same ID
+          await setDoc(doc(db, "orders_archive", docSnap.id), data);
+
+          // Remove from active orders
+          await deleteDoc(doc(db, "orders", docSnap.id));
+
+          count++;
+        }
+
+        alert(`Archived ${count} old orders.`);
+      } catch (err) {
+        console.error("Error archiving orders:", err);
+        alert("Failed to archive orders. See console for details.");
+      }
     });
   </script>
 

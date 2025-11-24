@@ -290,12 +290,10 @@
       });
 
       // Clear entire cart
-      clearCartBtn.addEventListener("click", () => {
-        cart = {};
-        saveCart();
-        updateCartUI();
-        renderCartTable();
-      });
+clearCartBtn.addEventListener("click", () => {
+  clearCart();       // uses the global helper from app.js
+  renderCartTable(); // re-render the table after clearing
+});
 
       // Discount code logic
       applyDiscountBtn.addEventListener("click", () => {
