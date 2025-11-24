@@ -7,7 +7,10 @@ import {
   getFirestore,
   doc,
   getDoc,
-  setDoc
+  setDoc,
+  collection,
+  addDoc,
+  serverTimestamp
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
 // Your web app's Firebase configuration
@@ -76,16 +79,17 @@ async function loadInventoryFromDB() {
 
     if (snap.exists()) {
       const data = snap.data() || {};
-      // mutate existing INVENTORY so window.INVENTORY stays in sync
-      Object.assign(INVENTORY, data);
+      Object.assign(INVENTORY, data);   // merge DB → memory
     } else {
-      // First time: create the doc with initial inventory
-      await setDoc(invRef, INVENTORY);
+      await setDoc(invRef, INVENTORY);  // first time, seed DB
     }
 
-    updateStockDisplays();
+    updateStockDisplays();              // ✅ show DB values
   } catch (err) {
     console.error("Error loading inventory from Firestore:", err);
+
+    // ✅ Fallback: still show the PRODUCT_DATA defaults
+    updateStockDisplays();
   }
 }
 
@@ -300,6 +304,28 @@ document.addEventListener("DOMContentLoaded", () => {
   // Initial cart UI sync
   updateCartUI();
 });
+
+// =======================
+//  ORDER LOGGING
+// =======================
+async function logOrder(orderData) {
+  try {
+    const ref = await addDoc(collection(db, "orders"), {
+      ...orderData,
+      createdAt: serverTimestamp()
+    });
+    console.log("Order saved with ID:", ref.id);
+  } catch (err) {
+    console.error("Error saving order:", err);
+  }
+}
+
+// Helper to clear the cart (so checkout page can use it safely)
+function clearCart() {
+  cart = {};
+  saveCart();
+  updateCartUI();
+}
 
 // =======================
 //  Expose functions globally (for inline scripts in other pages)

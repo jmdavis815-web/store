@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Admin Dashboard</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Firebase App (must stay here) -->
+  <script type="module" src="app.js"></script>
+</head>
+
+<body class="p-4">
+  <div class="container">
+    <h1 class="mb-4">🌙 Magic Moon — Admin Dashboard</h1>
+
+    <!-- ========================= -->
+    <!--   INVENTORY MANAGEMENT    -->
+    <!-- ========================= -->
+    <h3 class="mt-4">Inventory</h3>
+    <div class="table-responsive">
+      <table class="table table-bordered align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>Product</th>
+            <th>Current Stock</th>
+            <th>Add / Remove</th>
+            <th>Save</th>
+          </tr>
+        </thead>
+        <tbody id="inventoryTable"></tbody>
+      </table>
+    </div>
+
+    <hr class="my-5">
+
+    <!-- ========================= -->
+    <!--     REAL-TIME SALES       -->
+    <!-- ========================= -->
+    <h3>Sales History (Real-Time)</h3>
+    <p class="text-muted">New orders appear instantly.</p>
+
+    <div class="table-responsive">
+      <table class="table table-bordered align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>Order ID</th>
+            <th>Date</th>
+            <th>Items</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody id="salesHistory"></tbody>
+      </table>
+    </div>
+
+    <a href="index.html" class="btn btn-secondary mt-4">Back to Store</a>
+  </div>
+
+  <!-- ADMIN PAGE SCRIPT -->
+  <script type="module">
+    import {
+      getFirestore, doc, setDoc, onSnapshot, collection, updateDoc
+    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+    const db = getFirestore();
+
+    /*****************************
+     *     REAL-TIME INVENTORY   *
+     *****************************/
+    const inventoryTable = document.getElementById("inventoryTable");
+
+    // Live listener for inventory
+    onSnapshot(doc(db, "store", "inventory"), (snap) => {
+      const inv = snap.data() || {};
+      window.INVENTORY = inv; // update global
+
+      inventoryTable.innerHTML = "";
+
+      Object.entries(inv).forEach(([id, stock]) => {
+        const p = PRODUCT_DATA[id];
+        if (!p) return;
+
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+          <td>${p.name}</td>
+          <td id="stock-${id}">${stock}</td>
+          <td>
+            <input type="number" class="form-control" id="adj-${id}" value="0">
+          </td>
+          <td>
+            <button class="btn btn-primary" data-id="${id}">Save</button>
+          </td>
+        `;
+
+        inventoryTable.appendChild(row);
+      });
+    });
+
+    // Save button handler
+    inventoryTable.addEventListener("click", async (e) => {
+      const btn = e.target.closest("button[data-id]");
+      if (!btn) return;
+
+      const id = btn.dataset.id;
+      const amount = parseInt(document.getElementById(`adj-${id}`).value) || 0;
+
+      const newStock = (window.INVENTORY[id] || 0) + amount;
+
+      await updateDoc(doc(db, "store", "inventory"), {
+        [id]: newStock
+      });
+
+      alert(`Updated stock for ${PRODUCT_DATA[id].name}: ${newStock}`);
+    });
+
+    /*****************************
+     *   REAL-TIME SALES HISTORY *
+     *****************************/
+    const salesHistory = document.getElementById("salesHistory");
+
+    onSnapshot(collection(db, "orders"), (snapshot) => {
+      salesHistory.innerHTML = "";
+
+      snapshot.forEach((docSnap) => {
+        const order = docSnap.data();
+        const row = document.createElement("tr");
+
+        const itemsList = order.items
+          .map(([id, item]) => `${item.qty} × ${item.name}`)
+          .join("<br>");
+
+        row.innerHTML = `
+          <td>${docSnap.id}</td>
+          <td>${new Date(order.date).toLocaleString()}</td>
+          <td>${itemsList}</td>
+          <td>${order.total}</td>
+        `;
+
+        salesHistory.appendChild(row);
+      });
+    });
+
+  </script>
+
+</body>
+</html>

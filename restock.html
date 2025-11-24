@@ -3,65 +3,213 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>Admin Restock</title>
+  <title>Admin – Inventory & Sales History</title>
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="p-4">
   <div class="container">
-    <h1 class="mb-4">Admin: Restock Inventory</h1>
+    <h1 class="mb-4">Admin: Inventory & Sales History</h1>
 
-    <div class="table-responsive">
-      <table class="table table-bordered align-middle">
-        <thead class="table-light">
-          <tr>
-            <th>Product</th>
-            <th>Current Stock</th>
-            <th>Add Amount</th>
-            <th>Save</th>
-          </tr>
-        </thead>
-        <tbody id="restockTable"></tbody>
-      </table>
+    <!-- INVENTORY CONTROL -->
+    <div class="card mb-4">
+      <div class="card-body">
+        <h4 class="card-title mb-3">Inventory Controls</h4>
+        <p class="text-muted">
+          Use <strong>positive</strong> numbers to restock, and <strong>negative</strong> numbers to record manual sales or corrections.
+        </p>
+
+        <div class="table-responsive">
+          <table class="table table-bordered align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>Product</th>
+                <th>Current Stock</th>
+                <th style="width: 160px;">Change (+ / -)</th>
+                <th style="width: 180px;">Reason</th>
+                <th style="width: 120px;">Apply</th>
+              </tr>
+            </thead>
+            <tbody id="restockTable"></tbody>
+          </table>
+        </div>
+      </div>
     </div>
 
-    <a href="index.html" class="btn btn-secondary mt-3">Back to Store</a>
+    <!-- HISTORY -->
+    <div class="card">
+      <div class="card-body">
+        <h4 class="card-title mb-3">Stock / Sales History</h4>
+        <p class="text-muted small mb-2">
+          This history is stored in your browser (localStorage) under <code>stockHistory</code>.
+        </p>
+
+        <div class="table-responsive">
+          <table class="table table-sm table-striped align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>Date / Time</th>
+                <th>Product</th>
+                <th>Change</th>
+                <th>New Stock</th>
+                <th>Reason</th>
+              </tr>
+            </thead>
+            <tbody id="historyTableBody">
+              <!-- Filled by JS -->
+            </tbody>
+          </table>
+        </div>
+
+        <button id="clearHistoryBtn" class="btn btn-outline-danger btn-sm">
+          Clear History (this browser only)
+        </button>
+      </div>
+    </div>
+
+    <a href="index.html" class="btn btn-secondary mt-4">Back to Store</a>
   </div>
 
+  <!-- Shared app logic (PRODUCT_DATA, INVENTORY, saveInventory, etc.) -->
   <script type="module" src="app.js"></script>
+
+  <!-- Admin logic -->
   <script>
+    const HISTORY_KEY = "stockHistory";
+
+    function loadHistory() {
+      try {
+        const raw = localStorage.getItem(HISTORY_KEY);
+        return raw ? JSON.parse(raw) : [];
+      } catch (e) {
+        console.error("Error loading stock history:", e);
+        return [];
+      }
+    }
+
+    function saveHistory(history) {
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    }
+
+    function addHistoryEntry(productId, delta, newStock, reason) {
+      const history = loadHistory();
+      const product = PRODUCT_DATA[productId] || {};
+      history.unshift({
+        timestamp: new Date().toISOString(),
+        productId,
+        productName: product.name || productId,
+        change: delta,
+        newStock,
+        reason: reason || "Manual adjust"
+      });
+      saveHistory(history);
+      renderHistory();
+    }
+
+    function formatDate(iso) {
+      const d = new Date(iso);
+      if (isNaN(d)) return iso;
+      return d.toLocaleString();
+    }
+
+    function renderHistory() {
+      const tbody = document.getElementById("historyTableBody");
+      const history = loadHistory();
+      tbody.innerHTML = "";
+
+      if (!history.length) {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td colspan="5" class="text-center text-muted">
+            No history yet. Adjust inventory above to start tracking.
+          </td>
+        `;
+        tbody.appendChild(row);
+        return;
+      }
+
+      history.forEach(entry => {
+        const tr = document.createElement("tr");
+        const sign = entry.change > 0 ? "+" : "";
+        tr.innerHTML = `
+          <td>${formatDate(entry.timestamp)}</td>
+          <td>${entry.productName}</td>
+          <td>${sign}${entry.change}</td>
+          <td>${entry.newStock}</td>
+          <td>${entry.reason}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
       const table = document.getElementById("restockTable");
+      const clearHistoryBtn = document.getElementById("clearHistoryBtn");
 
-      // Build rows for each product
+      // Build rows for each product using INVENTORY from app.js
       Object.entries(INVENTORY).forEach(([id, stock]) => {
+        const product = PRODUCT_DATA[id] || { name: id };
         const row = document.createElement("tr");
 
         row.innerHTML = `
-          <td>${PRODUCT_DATA[id].name}</td>
+          <td>${product.name}</td>
           <td id="stock-${id}">${stock}</td>
-          <td><input type="number" min="0" class="form-control" id="add-${id}" placeholder="0"></td>
-          <td><button class="btn btn-primary" data-id="${id}">Update</button></td>
+          <td>
+            <input type="number" class="form-control form-control-sm"
+                   id="change-${id}" placeholder="e.g., 5 or -2">
+          </td>
+          <td>
+            <select class="form-select form-select-sm" id="reason-${id}">
+              <option value="Restock">Restock</option>
+              <option value="Manual sale">Manual sale</option>
+              <option value="Correction">Correction</option>
+            </select>
+          </td>
+          <td>
+            <button class="btn btn-primary btn-sm" data-id="${id}">Apply</button>
+          </td>
         `;
 
         table.appendChild(row);
       });
 
-      // Handle restock button clicks
+      // Handle Apply clicks
       table.addEventListener("click", (e) => {
         const btn = e.target.closest("button[data-id]");
         if (!btn) return;
 
         const id = btn.dataset.id;
-        const amountToAdd = parseInt(document.getElementById(`add-${id}`).value) || 0;
+        const changeInput = document.getElementById(`change-${id}`);
+        const reasonSelect = document.getElementById(`reason-${id}`);
+        const stockCell = document.getElementById(`stock-${id}`);
 
-        INVENTORY[id] = INVENTORY[id] + amountToAdd;
+        let delta = parseInt(changeInput.value, 10);
+        if (isNaN(delta) || delta === 0) {
+          alert("Enter a non-zero number to change stock (e.g., 5 or -2).");
+          return;
+        }
+
+        // Apply change, but don't go below 0
+        const current = INVENTORY[id] || 0;
+        const newStock = Math.max(0, current + delta);
+        INVENTORY[id] = newStock;
         saveInventory();
 
-        document.getElementById(`stock-${id}`).textContent = INVENTORY[id];
+        stockCell.textContent = newStock;
+        changeInput.value = "";
 
-        alert(`Updated stock for ${PRODUCT_DATA[id].name}: now ${INVENTORY[id]}`);
+        const reason = reasonSelect.value || "Manual adjust";
+        addHistoryEntry(id, delta, newStock, reason);
       });
+
+      clearHistoryBtn.addEventListener("click", () => {
+        if (!confirm("Clear all stock history on this browser?")) return;
+        saveHistory([]);
+        renderHistory();
+      });
+
+      // Initial render
+      renderHistory();
     });
   </script>
 </body>
