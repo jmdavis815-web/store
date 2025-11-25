@@ -39,7 +39,7 @@
 <body class="p-4">
 
   <div class="container">
-    <h1 class="mb-4">🌙 Magic Moon — Admin Dashboard</h1>
+    <h1 class="mb-4">Store — Admin Dashboard</h1>
 
         <!-- ========================= -->
     <!--       SITE STATISTICS     -->
@@ -122,6 +122,7 @@
 
 
   <!-- ADMIN PAGE SCRIPT -->
+    <!-- ADMIN PAGE SCRIPT -->
   <script type="module">
     import {
       getFirestore,
@@ -140,7 +141,7 @@
     // Use the default Firebase app initialized in app.js
     const db = getFirestore();
 
-        /*****************************
+    /*****************************
      *   SITE VIEW COUNTER       *
      *****************************/
     const viewCountEl = document.getElementById("viewCount");
@@ -153,7 +154,7 @@
       }
     });
 
-        /*****************************
+    /*****************************
      *    VIEWS GRAPH (7 DAYS)   *
      *****************************/
     const viewsChartCanvas = document.getElementById("viewsChart");
@@ -207,6 +208,15 @@
           return countsByDay[key] || 0;
         });
 
+        // 🔹 Smart auto-scaling of Y axis
+        let highest = 0;
+        if (dataPoints.length > 0) {
+          highest = Math.max(...dataPoints);
+        }
+
+        // If no data yet, or all zeros, use a small default
+        const suggestedMax = highest <= 0 ? 2 : highest + 2;
+
         const ctx = viewsChartCanvas.getContext("2d");
 
         if (viewsChart) {
@@ -231,8 +241,10 @@
               y: {
                 beginAtZero: true,
                 ticks: {
-                  precision: 0
-                }
+                  precision: 0,
+                  stepSize: 1
+                },
+                suggestedMax: suggestedMax
               }
             }
           }
