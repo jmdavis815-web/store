@@ -1,403 +1,464 @@
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="light">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Admin Dashboard</title>
 
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Chart.js for views graph -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Loads Firebase app + PRODUCT_DATA + INVENTORY + helpers -->
+    <script type="module" src="app.js"></script>
+
+    <!-- AUTH GUARD SCRIPT -->
     <script type="module">
-  import { getAuth, onAuthStateChanged, signOut } 
-    from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-  import { app } from "./app.js";
+      import {
+        getAuth,
+        onAuthStateChanged,
+        signOut
+      } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+      import { app } from "./app.js";
 
-  const auth = getAuth(app);
+      const auth = getAuth(app);
 
-  // Ensure only logged-in users can view this page
-  onAuthStateChanged(auth, (user) => {
-    if (!user) {
-      window.location.href = "admin-login.html";
-    }
-  });
+      // Ensure only logged-in users can view this page
+      onAuthStateChanged(auth, (user) => {
+        if (!user) {
+          window.location.href = "admin-login.html";
+        }
+      });
 
-  // Optional: Add logout button functionality
-  window.adminLogout = function () {
-    signOut(auth).then(() => {
-      window.location.href = "admin-login.html";
-    });
-  }
-</script>
+      // Logout helper
+      window.adminLogout = function () {
+        signOut(auth).then(() => {
+          window.location.href = "admin-login.html";
+        });
+      };
+    </script>
+  </head>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <title>Admin Dashboard</title>
+  <body class="p-4">
+    <div class="container">
+      <h1 class="mb-4">Store — Admin Dashboard</h1>
 
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+      <!-- ========================= -->
+      <!--       SITE STATISTICS     -->
+      <!-- ========================= -->
+      <div class="row mb-4">
+        <!-- Total Views Card -->
+        <div class="col-md-4 mb-3">
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title mb-1">Total Site Views</h5>
+              <p class="text-muted small mb-1">
+                All public page loads logged in Firestore.
+              </p>
+              <p id="viewCount" class="fs-3 fw-bold mb-0">0</p>
+            </div>
+          </div>
+        </div>
 
-  <!-- Loads Firebase + PRODUCT_DATA + INVENTORY + helpers -->
-  <script type="module" src="app.js"></script>
-</head>
-
-<body class="p-4">
-
-  <div class="container">
-    <h1 class="mb-4">Store — Admin Dashboard</h1>
-
-        <!-- ========================= -->
-    <!--       SITE STATISTICS     -->
-    <!-- ========================= -->
-    <div class="row mb-4">
-      <!-- Total Views Card -->
-      <div class="col-md-4 mb-3">
-        <div class="card shadow-sm">
-          <div class="card-body">
-            <h5 class="card-title mb-1">Total Site Views</h5>
-            <p class="text-muted small mb-1">
-              All public page loads logged in Firestore.
-            </p>
-            <p id="viewCount" class="fs-3 fw-bold mb-0">0</p>
+        <!-- Views Chart -->
+        <div class="col-md-8 mb-3">
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title mb-3">Views (Last 7 Days)</h5>
+              <canvas id="viewsChart" height="120"></canvas>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Views Chart -->
-      <div class="col-md-8 mb-3">
-        <div class="card shadow-sm">
-          <div class="card-body">
-            <h5 class="card-title mb-3">Views (Last 7 Days)</h5>
-            <canvas id="viewsChart" height="120"></canvas>
-          </div>
-        </div>
+      <!-- ========================= -->
+      <!--   INVENTORY MANAGEMENT    -->
+      <!-- ========================= -->
+      <h3 class="mt-4">Inventory</h3>
+      <div class="table-responsive">
+        <table class="table table-bordered align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Product</th>
+              <th>Current Stock</th>
+              <th>Add / Remove</th>
+              <th>Save</th>
+            </tr>
+          </thead>
+          <tbody id="inventoryTable"></tbody>
+        </table>
       </div>
-    </div>
 
-    <!-- ========================= -->
-    <!--   INVENTORY MANAGEMENT    -->
-    <!-- ========================= -->
-    <h3 class="mt-4">Inventory</h3>
-    <div class="table-responsive">
-      <table class="table table-bordered align-middle">
-        <thead class="table-light">
-          <tr>
-            <th>Product</th>
-            <th>Current Stock</th>
-            <th>Add / Remove</th>
-            <th>Save</th>
-          </tr>
-        </thead>
-        <tbody id="inventoryTable"></tbody>
-      </table>
-    </div>
+      <hr class="my-5">
 
-    <hr class="my-5">
+      <!-- ========================= -->
+      <!--     REAL-TIME SALES       -->
+      <!-- ========================= -->
+      <h3>Sales History (Real-Time)</h3>
+      <p class="text-muted">New orders appear instantly.</p>
 
-    <!-- ========================= -->
-    <!--     REAL-TIME SALES       -->
-    <!-- ========================= -->
-    <h3>Sales History (Real-Time)</h3>
-    <p class="text-muted">New orders appear instantly.</p>
-
-    <button id="archiveBtn" class="btn btn-outline-warning btn-sm mb-3">
+      <button id="archiveBtn" class="btn btn-outline-warning btn-sm mb-3">
         Archive orders older than 30 days
-    </button>
+      </button>
 
-    <div class="table-responsive">
-      <table class="table table-bordered align-middle">
-        <thead class="table-light">
-          <tr>
-            <th>Order ID</th>
-            <th>Date</th>
-            <th>Items</th>
-            <th>Total</th>
-          </tr>
-        </thead>
-        <tbody id="salesHistory"></tbody>
-      </table>
+      <!-- FIX VIEWEVENTS BUTTON -->
+      <button id="fixViewsBtn" class="btn btn-outline-danger btn-sm mb-3 ms-2">
+        Fix View Event Timestamps
+      </button>
+
+      <div class="table-responsive mt-3">
+        <table class="table table-bordered align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Order ID</th>
+              <th>Date</th>
+              <th>Items</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody id="salesHistory"></tbody>
+        </table>
+      </div>
+
+      <a href="admin.archive.html" class="btn btn-outline-secondary mt-4 me-2">
+        View Archived Orders
+      </a>
+      <a href="index.html" class="btn btn-secondary mt-4">Back to Store</a>
+      <button class="btn btn-danger mt-4" onclick="adminLogout()">Logout</button>
     </div>
 
-  <a href="admin.archive.html" class="btn btn-outline-secondary mt-4 me-2">
-    View Archived Orders
-    </a>
-    <a href="index.html" class="btn btn-secondary mt-4">Back to Store</a>
-    <button class="btn btn-danger mt-4" onclick="adminLogout()">Logout</button>
-
-
-
-  <!-- ADMIN PAGE SCRIPT -->
     <!-- ADMIN PAGE SCRIPT -->
-  <script type="module">
-    import {
-      getFirestore,
-      doc,
-      setDoc,
-      onSnapshot,
-      collection,
-      updateDoc,
-      query,
-      where,
-      getDocs,
-      deleteDoc,
-      Timestamp
-    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+    <script type="module">
+      import {
+        getFirestore,
+        doc,
+        setDoc,
+        onSnapshot,
+        collection,
+        updateDoc,
+        query,
+        where,
+        getDocs,
+        deleteDoc,
+        Timestamp
+      } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-    // Use the default Firebase app initialized in app.js
-    const db = getFirestore();
+      // Use the default Firebase app initialized in app.js
+      const db = getFirestore();
 
-    /*****************************
-     *   SITE VIEW COUNTER       *
-     *****************************/
-    const viewCountEl = document.getElementById("viewCount");
+      /*****************************
+       *   SITE VIEW COUNTER       *
+       *****************************/
+      const viewCountEl = document.getElementById("viewCount");
 
-    onSnapshot(doc(db, "store", "stats"), (snap) => {
-      const data = snap.data() || {};
-      const views = typeof data.pageViews === "number" ? data.pageViews : 0;
-      if (viewCountEl) {
-        viewCountEl.textContent = views.toLocaleString();
-      }
-    });
-
-    /*****************************
-     *    VIEWS GRAPH (7 DAYS)   *
-     *****************************/
-    const viewsChartCanvas = document.getElementById("viewsChart");
-    let viewsChart = null;
-
-    async function loadViewsGraph() {
-      if (!viewsChartCanvas || !window.Chart) return;
-
-      try {
-        const eventsRef = collection(db, "viewEvents");
-
-        // Last 7 days (including today)
-        const now = new Date();
-        const start = new Date();
-        start.setHours(0, 0, 0, 0);
-        start.setDate(start.getDate() - 6); // 6 days ago + today = 7 days
-
-        const q = query(
-          eventsRef,
-          where("createdAt", ">=", Timestamp.fromDate(start)),
-          where("createdAt", "<=", Timestamp.fromDate(now))
-        );
-
-        const snap = await getDocs(q);
-
-        // Build a map dateKey -> count
-        const countsByDay = {};
-        const days = [];
-
-        for (let i = 0; i < 7; i++) {
-          const d = new Date(start);
-          d.setDate(start.getDate() + i);
-          const key = d.toISOString().slice(0, 10); // YYYY-MM-DD
-          countsByDay[key] = 0;
-          days.push(new Date(d));
+      onSnapshot(doc(db, "store", "stats"), (snap) => {
+        const data = snap.data() || {};
+        const views = typeof data.pageViews === "number" ? data.pageViews : 0;
+        if (viewCountEl) {
+          viewCountEl.textContent = views.toLocaleString();
         }
+      });
 
-        snap.forEach((docSnap) => {
-          const data = docSnap.data();
-          if (!data.createdAt?.toDate) return;
-          const d = data.createdAt.toDate();
-          const key = d.toISOString().slice(0, 10);
-          if (key in countsByDay) {
-            countsByDay[key] += 1;
-          }
-        });
+      /**********************************************
+       *  FIX VIEWEVENTS TIMESTAMPS (ADMIN TOOL)
+       **********************************************/
+      const fixViewsBtn = document.getElementById("fixViewsBtn");
 
-        const labels = days.map((d) => d.toLocaleDateString());
-        const dataPoints = days.map((d) => {
-          const key = d.toISOString().slice(0, 10);
-          return countsByDay[key] || 0;
-        });
+      if (fixViewsBtn) {
+        fixViewsBtn.addEventListener("click", async () => {
+          const ok = confirm("Fix ALL viewEvent timestamps to now?");
+          if (!ok) return;
 
-        // 🔹 Smart auto-scaling of Y axis
-        let highest = 0;
-        if (dataPoints.length > 0) {
-          highest = Math.max(...dataPoints);
-        }
+          try {
+            const viewEventsRef = collection(db, "viewEvents");
+            const snap = await getDocs(viewEventsRef);
 
-        // If no data yet, or all zeros, use a small default
-        const suggestedMax = highest <= 0 ? 2 : highest + 2;
+            let fixed = 0;
 
-        const ctx = viewsChartCanvas.getContext("2d");
+            for (const eventDoc of snap.docs) {
+              const data = eventDoc.data();
+              const id = eventDoc.id;
 
-        if (viewsChart) {
-          viewsChart.destroy();
-        }
-
-        viewsChart = new Chart(ctx, {
-          type: "line",
-          data: {
-            labels,
-            datasets: [
-              {
-                label: "Page Views",
-                data: dataPoints,
-                tension: 0.3,
-                fill: true
+              // Missing createdAt
+              if (!data.createdAt) {
+                await updateDoc(doc(db, "viewEvents", id), {
+                  createdAt: Timestamp.now()
+                });
+                fixed++;
+                continue;
               }
-            ]
-          },
-          options: {
-            scales: {
-              y: {
-                beginAtZero: true,
-                ticks: {
-                  precision: 0,
-                  stepSize: 1
-                },
-                suggestedMax: suggestedMax
+
+              // Not a Timestamp (string or something else)
+              if (!data.createdAt.toDate) {
+                await updateDoc(doc(db, "viewEvents", id), {
+                  createdAt: Timestamp.now()
+                });
+                fixed++;
               }
             }
+
+            alert(`Fixed ${fixed} timestamp(s). Reload the dashboard to update graph.`);
+          } catch (err) {
+            console.error("Error fixing timestamps:", err);
+            alert("Failed to fix timestamps — see console for details.");
           }
         });
-      } catch (err) {
-        console.error("Error loading views graph:", err);
       }
+
+      /*****************************
+ *    VIEWS GRAPH (7 DAYS)   *
+ *****************************/
+const viewsChartCanvas = document.getElementById("viewsChart");
+let viewsChart = null;
+
+async function loadViewsGraph() {
+  if (!viewsChartCanvas || !window.Chart) return;
+
+  try {
+    const eventsRef = collection(db, "viewEvents");
+
+    // Get ALL viewEvents
+    const snap = await getDocs(eventsRef);
+
+    console.log("Total viewEvents docs:", snap.size);
+
+    // Build last 7 days date range
+    const now = new Date();
+    const start = new Date();
+    start.setHours(0, 0, 0, 0);
+    start.setDate(start.getDate() - 6);
+
+    // Build buckets
+    const countsByDay = {};
+    const days = [];
+
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(start);
+      d.setDate(start.getDate() + i);
+      const key = d.toISOString().slice(0, 10);
+      countsByDay[key] = 0;
+      days.push(new Date(d));
     }
 
-    // Load the graph once when the dashboard loads
-    loadViewsGraph();
+    snap.forEach((docSnap) => {
+      const data = docSnap.data();
 
-    /*****************************
-     *     REAL-TIME INVENTORY   *
-     *****************************/
-    const inventoryTable = document.getElementById("inventoryTable");
+      let d;
+      if (data.createdAt?.toDate) {
+        d = data.createdAt.toDate();
+      } else {
+        d = new Date(); // treat missing as today
+      }
 
-    // Live listener for inventory document
-    onSnapshot(doc(db, "store", "inventory"), (snap) => {
-      const inv = snap.data() || {};
-      window.INVENTORY = inv; // keep global in sync
+      // Convert Firestore timestamp into LOCAL midnight bucket
+      const localKey = new Date(
+        d.getFullYear(),
+        d.getMonth(),
+        d.getDate()
+      ).toISOString().slice(0, 10);
 
-      inventoryTable.innerHTML = "";
-
-      Object.entries(inv).forEach(([id, stock]) => {
-        const p = window.PRODUCT_DATA[id];
-        if (!p) return;
-
-        const row = document.createElement("tr");
-
-        row.innerHTML = `
-          <td>${p.name}</td>
-          <td id="stock-${id}">${stock}</td>
-          <td>
-            <input type="number" class="form-control" id="adj-${id}" value="0">
-          </td>
-          <td>
-            <button class="btn btn-primary" data-id="${id}">Save</button>
-          </td>
-        `;
-
-        inventoryTable.appendChild(row);
-      });
-    });
-
-    // Save button handler (add / remove stock)
-    inventoryTable.addEventListener("click", async (e) => {
-      const btn = e.target.closest("button[data-id]");
-      if (!btn) return;
-
-      const id = btn.dataset.id;
-      const amount = parseInt(document.getElementById(`adj-${id}`).value) || 0;
-
-      const newStock = (window.INVENTORY[id] || 0) + amount;
-
-      await updateDoc(doc(db, "store", "inventory"), {
-        [id]: newStock
-      });
-
-      alert(`Updated stock for ${window.PRODUCT_DATA[id].name}: ${newStock}`);
-    });
-
-    /*****************************
-     *   REAL-TIME SALES HISTORY *
-     *****************************/
-    const salesHistory = document.getElementById("salesHistory");
-
-    onSnapshot(collection(db, "orders"), (snapshot) => {
-      salesHistory.innerHTML = "";
-
-      snapshot.forEach((docSnap) => {
-        const data = docSnap.data();
-
-        // Date
-        const created = data.createdAt?.toDate
-          ? data.createdAt.toDate()
-          : new Date();
-
-        // Items: handle array or object form
-        const itemsArray = Array.isArray(data.items)
-          ? data.items
-          : Object.entries(data.items || {}).map(([id, item]) => ({
-              id,
-              ...item
-            }));
-
-        const itemsList = itemsArray
-          .map(i => `${i.name} (x${i.qty})`)
-          .join("<br>");
-
-        const totalDisplay = data.totals?.total || "$0.00";
-
-        const row = document.createElement("tr");
-        row.innerHTML = `
-          <td>${docSnap.id}</td>
-          <td>${created.toLocaleString()}</td>
-          <td>${itemsList}</td>
-          <td>${totalDisplay}</td>
-        `;
-
-        salesHistory.appendChild(row);
-      });
-    });
-
-    /*****************************
-     *   ARCHIVE OLD ORDERS BTN  *
-     *****************************/
-    const archiveBtn = document.getElementById("archiveBtn");
-
-    archiveBtn.addEventListener("click", async () => {
-      const ok = confirm(
-        "Archive orders older than 30 days? They will be moved to 'orders_archive' and removed from this list."
-      );
-      if (!ok) return;
-
-      try {
-        // Cutoff: 30 days ago
-        const cutoffDate = new Date();
-        cutoffDate.setDate(cutoffDate.getDate() - 30);
-
-        const q = query(
-          collection(db, "orders"),
-          where("createdAt", "<", Timestamp.fromDate(cutoffDate))
-        );
-
-        const snap = await getDocs(q);
-
-        if (snap.empty) {
-          alert("No orders older than 30 days to archive.");
-          return;
-        }
-
-        let count = 0;
-
-        for (const docSnap of snap.docs) {
-          const data = docSnap.data();
-
-          // Copy into orders_archive with same ID
-          await setDoc(doc(db, "orders_archive", docSnap.id), data);
-
-          // Remove from active orders
-          await deleteDoc(doc(db, "orders", docSnap.id));
-
-          count++;
-        }
-
-        alert(`Archived ${count} old orders.`);
-      } catch (err) {
-        console.error("Error archiving orders:", err);
-        alert("Failed to archive orders. See console for details.");
+      // Only count if inside last 7 days
+      if (d >= start && d <= now && countsByDay[localKey] !== undefined) {
+        countsByDay[localKey]++;
       }
     });
-  </script>
 
-</body>
+    const labels = days.map((d) => d.toLocaleDateString());
+    const dataPoints = days.map((d) => {
+      const key = d.toISOString().slice(0, 10);
+      return countsByDay[key] || 0;
+    });
+
+    console.log("View graph labels:", labels);
+    console.log("View graph dataPoints:", dataPoints);
+
+    // Smart Y scaling
+    const highest = Math.max(...dataPoints);
+    const suggestedMax = highest <= 0 ? 2 : highest + 2;
+
+    const ctx = viewsChartCanvas.getContext("2d");
+
+    if (viewsChart) {
+      viewsChart.destroy();
+    }
+
+    viewsChart = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels,
+        datasets: [
+          {
+            label: "Page Views",
+            data: dataPoints,
+            tension: 0.3,
+            fill: true
+          }
+        ]
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              precision: 0,
+              stepSize: 1
+            },
+            suggestedMax
+          }
+        }
+      }
+    });
+
+  } catch (err) {
+    console.error("Error loading views graph:", err);
+  }
+}
+
+loadViewsGraph();
+
+
+      /*****************************
+       *     REAL-TIME INVENTORY   *
+       *****************************/
+      const inventoryTable = document.getElementById("inventoryTable");
+
+      // Live listener for inventory document
+      onSnapshot(doc(db, "store", "inventory"), (snap) => {
+        const inv = snap.data() || {};
+        window.INVENTORY = inv; // keep global in sync
+
+        inventoryTable.innerHTML = "";
+
+        Object.entries(inv).forEach(([id, stock]) => {
+          const p = window.PRODUCT_DATA[id];
+          if (!p) return;
+
+          const row = document.createElement("tr");
+
+          row.innerHTML = `
+            <td>${p.name}</td>
+            <td id="stock-${id}">${stock}</td>
+            <td>
+              <input type="number" class="form-control" id="adj-${id}" value="0">
+            </td>
+            <td>
+              <button class="btn btn-primary" data-id="${id}">Save</button>
+            </td>
+          `;
+
+          inventoryTable.appendChild(row);
+        });
+      });
+
+      // Save button handler (add / remove stock)
+      inventoryTable.addEventListener("click", async (e) => {
+        const btn = e.target.closest("button[data-id]");
+        if (!btn) return;
+
+        const id = btn.dataset.id;
+        const amount = parseInt(document.getElementById(`adj-${id}`).value) || 0;
+
+        const newStock = (window.INVENTORY[id] || 0) + amount;
+
+        await updateDoc(doc(db, "store", "inventory"), {
+          [id]: newStock
+        });
+
+        alert(`Updated stock for ${window.PRODUCT_DATA[id].name}: ${newStock}`);
+      });
+
+      /*****************************
+       *   REAL-TIME SALES HISTORY *
+       *****************************/
+      const salesHistory = document.getElementById("salesHistory");
+
+      onSnapshot(collection(db, "orders"), (snapshot) => {
+        salesHistory.innerHTML = "";
+
+        snapshot.forEach((docSnap) => {
+          const data = docSnap.data();
+
+          // Date
+          const created = data.createdAt?.toDate
+            ? data.createdAt.toDate()
+            : new Date();
+
+          // Items: handle array or object form
+          const itemsArray = Array.isArray(data.items)
+            ? data.items
+            : Object.entries(data.items || {}).map(([id, item]) => ({
+                id,
+                ...item
+              }));
+
+          const itemsList = itemsArray
+            .map(i => `${i.name} (x${i.qty})`)
+            .join("<br>");
+
+          const totalDisplay = data.totals?.total || "$0.00";
+
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${docSnap.id}</td>
+            <td>${created.toLocaleString()}</td>
+            <td>${itemsList}</td>
+            <td>${totalDisplay}</td>
+          `;
+
+          salesHistory.appendChild(row);
+        });
+      });
+
+      /*****************************
+       *   ARCHIVE OLD ORDERS BTN  *
+       *****************************/
+      const archiveBtn = document.getElementById("archiveBtn");
+
+      archiveBtn.addEventListener("click", async () => {
+        const ok = confirm(
+          "Archive orders older than 30 days? They will be moved to 'orders_archive' and removed from this list."
+        );
+        if (!ok) return;
+
+        try {
+          // Cutoff: 30 days ago
+          const cutoffDate = new Date();
+          cutoffDate.setDate(cutoffDate.getDate() - 30);
+
+          const q = query(
+            collection(db, "orders"),
+            where("createdAt", "<", Timestamp.fromDate(cutoffDate))
+          );
+
+          const snap = await getDocs(q);
+
+          if (snap.empty) {
+            alert("No orders older than 30 days to archive.");
+            return;
+          }
+
+          let count = 0;
+
+          for (const docSnap of snap.docs) {
+            const data = docSnap.data();
+
+            // Copy into orders_archive with same ID
+            await setDoc(doc(db, "orders_archive", docSnap.id), data);
+
+            // Remove from active orders
+            await deleteDoc(doc(db, "orders", docSnap.id));
+
+            count++;
+          }
+
+          alert(`Archived ${count} old orders.`);
+        } catch (err) {
+          console.error("Error archiving orders:", err);
+          alert("Failed to archive orders. See console for details.");
+        }
+      });
+    </script>
+  </body>
 </html>
