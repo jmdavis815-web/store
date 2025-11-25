@@ -1,5 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="light">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <script type="module">
   import { getAuth, onAuthStateChanged, signOut } 
     from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
@@ -51,7 +53,7 @@
             <p class="text-muted small mb-1">
               All public page loads logged in Firestore.
             </p>
-            <p id="totalViews" class="fs-3 fw-bold mb-0">0</p>
+            <p id="viewCount" class="fs-3 fw-bold mb-0">0</p>
           </div>
         </div>
       </div>
@@ -66,11 +68,6 @@
         </div>
       </div>
     </div>
-
-    <!-- ========================= -->
-    <!--   INVENTORY MANAGEMENT    -->
-    <!-- ========================= -->
-
 
     <!-- ========================= -->
     <!--   INVENTORY MANAGEMENT    -->
@@ -155,6 +152,98 @@
         viewCountEl.textContent = views.toLocaleString();
       }
     });
+
+        /*****************************
+     *    VIEWS GRAPH (7 DAYS)   *
+     *****************************/
+    const viewsChartCanvas = document.getElementById("viewsChart");
+    let viewsChart = null;
+
+    async function loadViewsGraph() {
+      if (!viewsChartCanvas || !window.Chart) return;
+
+      try {
+        const eventsRef = collection(db, "viewEvents");
+
+        // Last 7 days (including today)
+        const now = new Date();
+        const start = new Date();
+        start.setHours(0, 0, 0, 0);
+        start.setDate(start.getDate() - 6); // 6 days ago + today = 7 days
+
+        const q = query(
+          eventsRef,
+          where("createdAt", ">=", Timestamp.fromDate(start)),
+          where("createdAt", "<=", Timestamp.fromDate(now))
+        );
+
+        const snap = await getDocs(q);
+
+        // Build a map dateKey -> count
+        const countsByDay = {};
+        const days = [];
+
+        for (let i = 0; i < 7; i++) {
+          const d = new Date(start);
+          d.setDate(start.getDate() + i);
+          const key = d.toISOString().slice(0, 10); // YYYY-MM-DD
+          countsByDay[key] = 0;
+          days.push(new Date(d));
+        }
+
+        snap.forEach((docSnap) => {
+          const data = docSnap.data();
+          if (!data.createdAt?.toDate) return;
+          const d = data.createdAt.toDate();
+          const key = d.toISOString().slice(0, 10);
+          if (key in countsByDay) {
+            countsByDay[key] += 1;
+          }
+        });
+
+        const labels = days.map((d) => d.toLocaleDateString());
+        const dataPoints = days.map((d) => {
+          const key = d.toISOString().slice(0, 10);
+          return countsByDay[key] || 0;
+        });
+
+        const ctx = viewsChartCanvas.getContext("2d");
+
+        if (viewsChart) {
+          viewsChart.destroy();
+        }
+
+        viewsChart = new Chart(ctx, {
+          type: "line",
+          data: {
+            labels,
+            datasets: [
+              {
+                label: "Page Views",
+                data: dataPoints,
+                tension: 0.3,
+                fill: true
+              }
+            ]
+          },
+          options: {
+            scales: {
+              y: {
+                beginAtZero: true,
+                ticks: {
+                  precision: 0
+                }
+              }
+            }
+          }
+        });
+      } catch (err) {
+        console.error("Error loading views graph:", err);
+      }
+    }
+
+    // Load the graph once when the dashboard loads
+    loadViewsGraph();
 
     /*****************************
      *     REAL-TIME INVENTORY   *
