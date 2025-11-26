@@ -30,6 +30,16 @@ const analytics = getAnalytics(app);
 const db = getFirestore(app);
 
 // =======================
+//  STRIPE CHECKOUT CONFIG
+// =======================
+
+// 🔹 Replace this with the actual URL shown in Firebase Console
+// Go to: Firebase Console → Functions → createCheckoutSession → "Trigger" URL
+const CHECKOUT_ENDPOINT =
+  "https://createcheckoutsession-2vmbgfumbq-uc.a.run.app";
+
+
+// =======================
 //  SITE VIEW COUNTER
 // =======================
 async function incrementPageViews() {
@@ -337,6 +347,69 @@ async function logOrder(orderData) {
 }
 
 // =======================
+//  STRIPE CHECKOUT
+// =======================
+
+async function startCheckout() {
+  try {
+    // Build an array of items from the cart
+    const items = Object.entries(cart)
+      .map(([id, item]) => {
+        if (!item || typeof item.qty !== "number" || item.qty <= 0) return null;
+        const product = PRODUCT_DATA[id] || {};
+        return {
+          id,
+          name: product.name || id,
+          quantity: item.qty,
+          price: product.price || 0,
+        };
+      })
+      .filter(Boolean);
+
+    if (!items.length) {
+      alert("Your cart is empty.");
+      return;
+    }
+
+    if (!CHECKOUT_ENDPOINT) {
+      console.error("Missing CHECKOUT_ENDPOINT");
+      alert("Checkout is not configured yet.");
+      return;
+    }
+
+    // Call your Firebase HTTPS function
+    const res = await fetch(CHECKOUT_ENDPOINT, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      // This shape must match what your Cloud Function expects
+      body: JSON.stringify({ items }),
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      console.error("Checkout error:", text);
+      alert("Could not start checkout. Please try again.");
+      return;
+    }
+
+    const data = await res.json();
+    console.log("Checkout session response:", data);
+
+    if (data.url) {
+      // Stripe-hosted checkout page
+      window.location.href = data.url;
+    } else {
+      alert("No checkout URL was returned from the server.");
+    }
+  } catch (err) {
+    console.error("Checkout failed:", err);
+    alert("Checkout failed. Please try again in a moment.");
+  }
+}
+
+// =======================
 //  GLOBAL EXPORTS
 // =======================
 window.PRODUCT_DATA = PRODUCT_DATA;
@@ -349,6 +422,7 @@ window.adjustCart = adjustCart;
 window.showCartToast = showCartToast;
 window.updateStockDisplays = updateStockDisplays;
 window.logOrder = logOrder;
+window.startCheckout = startCheckout;
 
 function clearCart() {
   cart = {};
