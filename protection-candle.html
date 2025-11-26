@@ -1,10 +1,11 @@
+
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="color-scheme" content="light dark">
-  <title>Protection Candle | Magic Moon Shop</title>
+  <title>Protection Candle</title>
 
   <!-- Your main styles -->
   <link href="style.css" rel="stylesheet">
@@ -111,10 +112,6 @@
 
           <hr>
 
-          <!-- Quantity controls + "cart total" display for this page -->
-          <div class="d-flex align-items-center mb-3">
-            <span class="me-2 fw-semibold">Quantity:</span>
-
             <!--
               IMPORTANT:
               - data-product-id MUST match your PRODUCT_DATA key (here: protectionCandle)
@@ -128,36 +125,13 @@
               data-product-name="Protection Candle"
               data-product-price="12.99"
             >
-              <button title="Remove Item" type="button" class="btn btn-outline-danger btn-cart-minus">
-                <i class="bi bi-cart-dash"></i>
-              </button>
-              <button
-                id="qty-protectionCandle"
-                type="button"
-                class="btn btn-outline-secondary"
-                disabled
-              >
-                0
-              </button>
-              <button title="Add Item" type="button" class="btn btn-outline-success btn-cart-plus">
-                <i class="bi bi-cart-plus"></i>
-              </button>
             </div>
           </div>
 
-          <!-- Page-level mini total (optional) -->
-          <p class="small text-muted mb-3">
-            <span class="fw-semibold">Cart total: </span>
-            <span id="priceTotal"></span> <!-- filled by app.js -->
-          </p>
-
           <!-- Action buttons -->
           <div class="mt-auto d-flex flex-wrap gap-2">
-            <a href="cart.html" class="btn btn-primary">
-              View Cart
-            </a>
-            <a href="https://buy.stripe.com/8x23cwfnualCgqnc5HbII00" class="btn btn-outline-success">
-              Checkout
+            <a href="https://buy.stripe.com/5kQbJ2cbifFW3DBedPbII01" class="btn btn-outline-success">
+              Buy Now
             </a>
             <a href="index.html" class="btn btn-outline-secondary">
               Back to Shop
@@ -167,31 +141,6 @@
       </div>
     </div>
   </main>
-
-  <!-- ===================== -->
-  <!--    CART TOAST POPUP   -->
-  <!-- ===================== -->
-  <div class="toast position-fixed bottom-0 end-0 p-3">
-    <div
-      id="cartToast"
-      class="toast align-items-center text-bg-success border-0"
-      role="alert"
-      aria-live="assertive"
-      aria-atomic="true"
-    >
-      <div class="d-flex">
-        <div class="toast-body">
-          Item added to cart.
-        </div>
-        <button
-          type="button"
-          class="btn-close btn-close-white me-2 m-auto"
-          data-bs-dismiss="toast"
-          aria-label="Close"
-        ></button>
-      </div>
-    </div>
-  </div>
 
   <!-- ===================== -->
   <!--   SCRIPTS / APP JS    -->
@@ -221,3 +170,4 @@
   </script>
 </body>
 </html>
+
