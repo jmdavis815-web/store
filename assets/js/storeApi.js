@@ -11,6 +11,19 @@ window.StoreApi = {
     return data;
   },
 
+  // Sales (customer)
+  async getActiveSales() {
+    const { data, error } = await sb
+      .from("sales")
+      .select(
+        "id,name,scope,percent_off,category_ids,active,starts_at,ends_at,created_at",
+      )
+      .eq("active", true)
+      .order("created_at", { ascending: false });
+    if (error) throw error;
+    return data || [];
+  },
+
   async getFeaturedProducts(limit = 8) {
     const { data, error } = await sb
       .from("products")
@@ -35,7 +48,7 @@ window.StoreApi = {
   async getProductsByCategory(categoryId) {
     const { data, error } = await sb
       .from("products")
-      .select("id,name,slug,price_cents,currency,image_url,active")
+      .select("id,name,slug,price_cents,currency,image_url,active,category_id") // ✅ include category_id
       .eq("active", true)
       .eq("category_id", categoryId)
       .order("created_at", { ascending: false });
@@ -58,7 +71,6 @@ window.StoreApi = {
     const query = (q || "").trim();
     if (!query) return [];
 
-    // Search active products by name/slug/description
     const { data, error } = await sb
       .from("products")
       .select("id,name,slug,price_cents,currency,image_url,active,category_id")
@@ -74,6 +86,36 @@ window.StoreApi = {
   },
 
   // Admin
+  // Sales (admin)
+  async adminListSales() {
+    const { data, error } = await sb
+      .from("sales")
+      .select(
+        "id,name,scope,percent_off,category_ids,active,starts_at,ends_at,created_at,updated_at",
+      )
+      .order("created_at", { ascending: false });
+    if (error) throw error;
+    return data || [];
+  },
+
+  async adminUpsertSale(sale) {
+    const { data, error } = await sb
+      .from("sales")
+      .upsert(sale)
+      .select("*")
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
+  async adminEndSale(id) {
+    const { error } = await sb
+      .from("sales")
+      .update({ active: false, ends_at: new Date().toISOString() })
+      .eq("id", id);
+    if (error) throw error;
+  },
+
   async signIn(email, password) {
     const { data, error } = await sb.auth.signInWithPassword({
       email,

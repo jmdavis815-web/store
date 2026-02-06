@@ -43,7 +43,31 @@ window.Cart = {
 
   totals() {
     const cart = readCart();
+    const sales = window.Sales?.getCached ? window.Sales.getCached() : [];
+
     const subtotalCents = cart.reduce((s, x) => s + x.price_cents * x.qty, 0);
-    return { subtotalCents };
+
+    const discountCents = cart.reduce((s, x) => {
+      const sale = (sales || []).length
+        ? (function () {
+            const catId = x.category_id || x.categoryId || null;
+            if (!catId) {
+              const storeSale = (sales || [])
+                .filter((ss) => ss.scope === "store" && ss.active !== false)
+                .sort((a, b) => (b.percent_off || 0) - (a.percent_off || 0))[0];
+              return storeSale || null;
+            }
+            return window.Sales.bestForCategoryId(catId);
+          })()
+        : null;
+
+      const pct = Number(sale?.percent_off || 0);
+      if (!pct) return s;
+      const perItem = Math.round((x.price_cents * pct) / 100);
+      return s + perItem * x.qty;
+    }, 0);
+
+    const totalCents = Math.max(0, subtotalCents - discountCents);
+    return { subtotalCents, discountCents, totalCents };
   },
 };

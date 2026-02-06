@@ -2,6 +2,13 @@
 (async function () {
   renderNavbar();
 
+  // Load sales + render sale banner on homepage
+  await window.Sales?.ensureLoaded?.();
+  const sales = window.Sales?.getCached ? window.Sales.getCached() : [];
+  window.renderSaleBanner?.(document.getElementById("saleAd"), sales, {
+    ctaHref: "#featured",
+  });
+
   const categoriesEl = document.getElementById("categories");
   const featuredEl = document.getElementById("featured");
 
@@ -24,30 +31,50 @@
     .join("");
 
   const featured = await StoreApi.getFeaturedProducts(8);
+
   featuredEl.innerHTML = featured
-    .map(
-      (p) => `
-    <div class="col-12 col-md-3">
-      <div class="card h-100 product-card">
-        <img src="${p.image_url || "https://placehold.co/600x400"}" alt="">
-        <div class="card-body">
-          <div class="fw-semibold">${p.name}</div>
-          <div class="text-muted small">${fmtMoney(p.price_cents, p.currency)}</div>
+    .map((p) => {
+      // show discounted price if sale applies
+      const sp = window.salePriceFor ? window.salePriceFor(p) : null;
+      const finalCents = sp ? sp.finalCents : p.price_cents;
+      const pct = Number(sp?.sale?.percent_off || 0);
+
+      const priceHtml =
+        pct > 0
+          ? `
+            <div class="small">
+              <span class="badge text-bg-success me-2">${pct}% OFF</span>
+              <span class="text-muted text-decoration-line-through me-1">${fmtMoney(p.price_cents, p.currency)}</span>
+              <span class="fw-semibold">${fmtMoney(finalCents, p.currency)}</span>
+            </div>
+          `
+          : `<div class="text-muted small">${fmtMoney(p.price_cents, p.currency)}</div>`;
+
+      return `
+        <div class="col-12 col-md-3">
+          <div class="card h-100 product-card">
+            <img src="${p.image_url || "https://placehold.co/600x400"}" alt="">
+            <div class="card-body">
+              <div class="fw-semibold">${p.name}</div>
+              ${priceHtml}
+            </div>
+            <div class="card-footer bg-white border-0 d-flex gap-2">
+              <a class="btn btn-outline-secondary btn-sm w-50" href="product.html?slug=${encodeURIComponent(p.slug)}">View</a>
+              <button class="btn btn-primary btn-sm w-50" data-add="${p.id}">Add</button>
+            </div>
+          </div>
         </div>
-        <div class="card-footer bg-white border-0 d-flex gap-2">
-          <a class="btn btn-outline-secondary btn-sm w-50" href="product.html?slug=${encodeURIComponent(p.slug)}">View</a>
-          <button class="btn btn-primary btn-sm w-50" data-add="${p.id}">Add</button>
-        </div>
-      </div>
-    </div>
-  `,
-    )
+      `;
+    })
     .join("");
 
   featuredEl.addEventListener("click", async (e) => {
     const id = e.target?.dataset?.add;
     if (!id) return;
+
     const p = featured.find((x) => x.id === id);
+    if (!p) return;
+
     Cart.add(
       {
         id: p.id,
@@ -55,9 +82,11 @@
         price_cents: p.price_cents,
         currency: p.currency,
         image_url: p.image_url,
+        category_id: p.category_id || null, // IMPORTANT for category-based sales in cart totals
       },
       1,
     );
+
     renderNavbar();
   });
 })();
