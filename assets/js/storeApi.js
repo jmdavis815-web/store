@@ -54,6 +54,25 @@ window.StoreApi = {
     return data;
   },
 
+  async searchProducts(q, limit = 48) {
+    const query = (q || "").trim();
+    if (!query) return [];
+
+    // Search active products by name/slug/description
+    const { data, error } = await sb
+      .from("products")
+      .select("id,name,slug,price_cents,currency,image_url,active,category_id")
+      .eq("active", true)
+      .or(
+        `name.ilike.%${query}%,slug.ilike.%${query}%,description.ilike.%${query}%`,
+      )
+      .order("created_at", { ascending: false })
+      .limit(limit);
+
+    if (error) throw error;
+    return data;
+  },
+
   // Admin
   async signIn(email, password) {
     const { data, error } = await sb.auth.signInWithPassword({
@@ -109,6 +128,11 @@ window.StoreApi = {
       .single();
     if (error) throw error;
     return data;
+  },
+
+  async adminDeleteCategory(id) {
+    const { error } = await sb.from("categories").delete().eq("id", id);
+    if (error) throw error;
   },
 
   async uploadProductImage(file, productId) {

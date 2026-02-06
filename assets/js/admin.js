@@ -23,6 +23,8 @@
   const deleteBtn = document.getElementById("deleteBtn");
   const msgEl = document.getElementById("msg");
 
+  const deleteCatBtn = document.getElementById("deleteCatBtn");
+
   // Categories UI
   const catListEl = document.getElementById("catList");
   const newCatBtn = document.getElementById("newCatBtn");
@@ -34,6 +36,38 @@
 
   let categories = [];
   let products = [];
+
+  deleteCatBtn?.addEventListener("click", async () => {
+    try {
+      const id = cidEl.value;
+      if (!id) {
+        setCatMsg("Select a category first.");
+        return;
+      }
+
+      // SAFETY: block delete if products reference this category
+      const inUse = (products || []).filter((p) => p.category_id === id);
+      if (inUse.length > 0) {
+        setCatMsg(
+          `Cannot delete. ${inUse.length} product(s) still use this category.`,
+        );
+        return;
+      }
+
+      const name = cnameEl.value || "this category";
+      if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
+
+      setCatMsg("Deleting…");
+      await StoreApi.adminDeleteCategory(id);
+
+      await refresh();
+      clearCatForm();
+      setCatMsg("Deleted.");
+    } catch (e) {
+      console.error(e);
+      setCatMsg(e.message || "Delete failed");
+    }
+  });
 
   function setCatMsg(t) {
     if (catMsgEl) catMsgEl.textContent = t || "";

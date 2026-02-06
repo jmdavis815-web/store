@@ -14,6 +14,25 @@
     <nav class="navbar navbar-expand-lg bg-light border-bottom">
       <div class="container">
         <a class="navbar-brand fw-bold" href="index.html">My Store</a>
+        <!-- Search -->
+        <form
+          class="d-flex mx-auto"
+          role="search"
+          action="search.html"
+          method="GET"
+          style="max-width: 420px; width: 100%"
+        >
+          <input
+            class="form-control form-control-sm me-2"
+            type="search"
+            name="q"
+            placeholder="Search products…"
+            aria-label="Search"
+          />
+          <button class="btn btn-sm btn-outline-primary" type="submit">
+            Search
+          </button>
+        </form>
         <div class="d-flex gap-3 align-items-center">
           <a class="btn btn-primary btn-sm" href="cart.html"
             >Cart (<span id="cartBadge">0</span>)</a
