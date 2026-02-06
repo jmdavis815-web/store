@@ -10,3 +10,14 @@
   padding: 2rem;
   background: #f7f7f9;
 }
+
+.search {
+  border-radius: 20px 0px 0px 20px;
+  font-size: 16px;
+}
+
+.searchBtn {
+  border-radius: 0px 20px 20px 0px;
+  font-size: 24px;
+  padding-right: 15px;
+}
