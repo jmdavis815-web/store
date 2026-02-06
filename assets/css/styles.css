@@ -1,27 +1,276 @@
-/* assets/css/styles.css */
+/* =========================
+   VERSION A: Modern Dark Boutique (CLEAN)
+   ========================= */
+
+:root {
+  --accent: #4f6ef7;
+  --accent-soft: rgba(79, 110, 247, 0.18);
+}
+
+body {
+  background: #fff;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Typography */
+h1 {
+  font-size: 1.75rem;
+  font-weight: 750;
+  letter-spacing: -0.2px;
+}
+
+h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.text-muted {
+  font-size: 0.85rem;
+}
+
+a {
+  color: var(--accent);
+}
+a:hover {
+  color: var(--accent);
+  opacity: 0.9;
+}
+
+/* Buttons */
+.btn {
+  border-radius: 0.9rem;
+}
+
+.btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 12px 22px rgba(0, 0, 0, 0.1);
+}
+
+/* NAVBAR */
+.navbar {
+  padding: 0.45rem 0;
+  background: linear-gradient(135deg, #0b0b0c, #1f1f22);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.25);
+  position: sticky;
+  top: 0;
+  z-index: 1030;
+}
+
+.navbar .container {
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
+}
+
+.navbar-brand {
+  color: #fff !important;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+.navbar-brand:hover {
+  color: #d6d6d6 !important;
+}
+
+/* Search (unified control) */
+.search {
+  height: 38px;
+  font-size: 0.85rem;
+  padding-left: 1rem !important;
+  padding-right: 1rem !important;
+
+  background: rgba(255, 255, 255, 0.96);
+
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-right: 0;
+
+  border-top-left-radius: 999px;
+  border-bottom-left-radius: 999px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+
+  box-shadow: none;
+}
+
+.search::placeholder {
+  color: #8f8f8f;
+}
+
+.search:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.12);
+}
+
+.searchBtn {
+  height: 38px;
+  padding-left: 0.85rem;
+  padding-right: 0.85rem;
+
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-left: 0;
+
+  border-top-right-radius: 999px;
+  border-bottom-right-radius: 999px;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.searchBtn:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+/* Cart */
+.navbar a[href="cart.html"] {
+  border-radius: 999px;
+  padding: 0.35rem 0.5rem;
+  transition: background 0.15s ease;
+}
+.navbar a[href="cart.html"]:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.navbar a .bi-cart4 {
+  color: #fff;
+  transition:
+    transform 0.15s ease,
+    opacity 0.15s ease;
+}
+.navbar a:hover .bi-cart4 {
+  transform: scale(1.05);
+  opacity: 0.85;
+}
+
+#cartBadge {
+  min-width: 18px;
+  height: 18px;
+  font-size: 0.65rem;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+
+  background: var(--accent) !important;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35);
+}
+
+/* HERO */
+.hero {
+  border-radius: 1rem;
+  padding: 2rem;
+  background: #fafafb;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.06);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("../img/soft-dark-linen.png");
+  background-size: cover;
+  background-position: center;
+  opacity: 0.07;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.hero > * {
+  position: relative;
+  z-index: 1;
+}
+.hero p {
+  font-size: 0.95rem;
+}
+
+/* SALE BANNER (Version A) */
+.sale-banner {
+  border-radius: 1rem;
+  padding: 1.25rem;
+  background: linear-gradient(135deg, #0f0f10, #25252a);
+  color: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.18);
+}
+
+.sale-banner .text-muted {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.sale-banner .badge {
+  background: rgba(255, 255, 255, 0.14) !important;
+  color: rgba(255, 255, 255, 0.95) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.sale-banner .btn {
+  border-radius: 999px;
+  padding: 0.45rem 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+}
+.sale-banner .btn:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+/* Cards (Categories + general) */
+.card {
+  border-radius: 1rem;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.03);
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    border-color 0.15s ease;
+}
+.card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(0, 0, 0, 0.12);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.08);
+}
+
+.card-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+/* Product cards */
+.product-card {
+  border: 0;
+  border-radius: 1.1rem;
+  overflow: hidden;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+.product-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.12);
+}
+
 .product-card img {
   width: 100%;
   height: 220px;
   object-fit: cover;
   border-radius: 0.5rem;
 }
-.hero {
-  border-radius: 1rem;
-  padding: 2rem;
-  background: #f7f7f9;
+
+.product-card .price {
+  font-weight: 700;
+  letter-spacing: 0.2px;
 }
 
-.search {
-  border-radius: 20px 0px 0px 20px;
-  font-size: 16px;
-}
-
-.searchBtn {
-  border-radius: 0px 20px 20px 0px;
-  font-size: 24px;
-  padding-right: 15px;
-}
-
-.sale-banner {
-  border-radius: 1rem;
+.product-card .btn {
+  width: 100%;
+  margin-top: 0.5rem;
 }

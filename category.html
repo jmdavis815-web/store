@@ -15,8 +15,8 @@
     <link href="assets/css/styles.css" rel="stylesheet" />
   </head>
   <body>
-    <nav class="navbar bg-light border-bottom">
-      <div class="container-fluid d-flex align-items-center gap-2">
+    <nav class="navbar navbar-dark">
+      <div class="container d-flex align-items-center gap-2">
         <!-- Brand -->
         <a class="navbar-brand fw-bold me-2" href="index.html">My Store</a>
 
@@ -29,24 +29,20 @@
           style="max-width: 320px"
         >
           <input
-            class="search form-control form-control-sm me-2 p-2 text-center"
+            class="search form-control form-control-sm p-2 text-center"
             type="search"
             name="q"
             placeholder="Search products…"
             aria-label="Search"
           />
-          <button
-            class="searchBtn btn btn-sm btn-outline-primary"
-            type="submit"
-            title="Search"
-          >
+          <button class="searchBtn btn btn-sm" type="submit" title="Search">
             <i class="bi bi-search"></i>
           </button>
         </form>
 
         <!-- Cart icon -->
         <a href="cart.html" class="position-relative ms-2 text-decoration-none">
-          <i class="bi bi-cart4 fs-4 text-primary"></i>
+          <i class="bi bi-cart4 fs-4"></i>
           <span
             id="cartBadge"
             class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
