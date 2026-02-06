@@ -23,8 +23,30 @@
   const deleteBtn = document.getElementById("deleteBtn");
   const msgEl = document.getElementById("msg");
 
+  // Categories UI
+  const catListEl = document.getElementById("catList");
+  const newCatBtn = document.getElementById("newCatBtn");
+  const cidEl = document.getElementById("cid");
+  const cnameEl = document.getElementById("cname");
+  const cslugEl = document.getElementById("cslug");
+  const saveCatBtn = document.getElementById("saveCatBtn");
+  const catMsgEl = document.getElementById("catMsg");
+
   let categories = [];
   let products = [];
+
+  function setCatMsg(t) {
+    if (catMsgEl) catMsgEl.textContent = t || "";
+  }
+
+  function slugify(s) {
+    return (s || "")
+      .toLowerCase()
+      .trim()
+      .replace(/['"]/g, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+  }
 
   function setMsg(t) {
     msgEl.textContent = t || "";
@@ -64,6 +86,39 @@
       .join("");
   }
 
+  function renderCatList() {
+    if (!catListEl) return;
+    catListEl.innerHTML = (categories || [])
+      .map(
+        (c) => `
+        <button class="btn btn-outline-secondary text-start" data-cedit="${c.id}">
+          <div class="d-flex justify-content-between">
+            <div>
+              <div class="fw-semibold">${c.name}</div>
+              <div class="small text-muted">${c.slug}</div>
+            </div>
+          </div>
+        </button>
+      `,
+      )
+      .join("");
+  }
+
+  function clearCatForm() {
+    if (!cidEl) return;
+    cidEl.value = "";
+    cnameEl.value = "";
+    cslugEl.value = "";
+    setCatMsg("");
+  }
+
+  function loadCatToForm(c) {
+    cidEl.value = c.id || "";
+    cnameEl.value = c.name || "";
+    cslugEl.value = c.slug || "";
+    setCatMsg("");
+  }
+
   function clearForm() {
     pidEl.value = "";
     nameEl.value = "";
@@ -91,6 +146,7 @@
   async function refresh() {
     categories = await StoreApi.getCategories();
     fillCategoryOptions();
+    renderCatList(); // <-- add this
     products = await StoreApi.adminListProducts();
     renderList();
   }
@@ -109,6 +165,49 @@
       logoutBtn.classList.add("d-none");
     }
   }
+
+  // Auto-suggest slug from name (only if slug is blank)
+  cnameEl?.addEventListener("input", () => {
+    if (!cslugEl.value.trim()) cslugEl.value = slugify(cnameEl.value);
+  });
+
+  newCatBtn?.addEventListener("click", () => {
+    clearCatForm();
+  });
+
+  catListEl?.addEventListener("click", (e) => {
+    const id = e.target.closest("[data-cedit]")?.dataset?.cedit;
+    if (!id) return;
+    const c = categories.find((x) => x.id === id);
+    if (c) loadCatToForm(c);
+  });
+
+  saveCatBtn?.addEventListener("click", async () => {
+    try {
+      setCatMsg("Saving…");
+
+      const id = cidEl.value || crypto.randomUUID();
+      const category = {
+        id,
+        name: cnameEl.value.trim(),
+        slug: cslugEl.value.trim() || slugify(cnameEl.value),
+      };
+
+      if (!category.name || !category.slug) {
+        setCatMsg("Name and slug are required.");
+        return;
+      }
+
+      await StoreApi.adminUpsertCategory(category);
+
+      await refresh(); // reload categories + products list
+      loadCatToForm(category); // keep the form on what you just saved
+      setCatMsg("Saved.");
+    } catch (e) {
+      console.error(e);
+      setCatMsg(e.message || "Save failed");
+    }
+  });
 
   loginBtn.addEventListener("click", async () => {
     try {
