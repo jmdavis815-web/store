@@ -1,0 +1,12 @@
+/* assets/css/styles.css */
+.product-card img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 0.5rem;
+}
+.hero {
+  border-radius: 1rem;
+  padding: 2rem;
+  background: #f7f7f9;
+}
